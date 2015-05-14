@@ -119,7 +119,7 @@ public class FanLogon extends DefaultPlugin
       }
       else if ("ISPF Primary Option Menu".equals (data.trimField (10))
           && "User ID . :".equals (data.trimField (23)) //
-          && "DMOLONY".equals (data.trimField (24)))
+          && user.equals (data.trimField (24)))
       {
         doesAuto = false;
         data.suppressDisplay = true;
