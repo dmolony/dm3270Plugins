@@ -1,4 +1,4 @@
-package com.bytezone.plugintest;
+package com.bytezone.plugins;
 
 import com.bytezone.dm3270.plugins.DefaultPlugin;
 import com.bytezone.dm3270.plugins.PluginData;

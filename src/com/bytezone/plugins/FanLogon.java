@@ -1,4 +1,4 @@
-package com.bytezone.plugintest;
+package com.bytezone.plugins;
 
 import java.util.Optional;
 
