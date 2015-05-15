@@ -1,5 +1,5 @@
 # dm3270 Plugins
-Plugins for the dm3270 terminal emulator.
+Plugins for the [dm3270](https://github.com/dmolony/dm3270/) terminal emulator.
 #### Show fields
 Display a list of all the fields on the current screen. Useful when building other plugins.
 #### Show dataset
