@@ -135,9 +135,9 @@ public class DatasetStage extends Stage
 
       datasetNameText.setText (editorPage.datasetName);
       memberNameText.setText (editorPage.memberName);
-      totalLines += editorPage.lines.size ();
-      datasetLinesText.setText (totalLines + "");
-      datasetColumnsText.setText (editorPage.rightColumn + "");
+
+      if (editorPage.rightColumn > 0)
+        datasetColumnsText.setText (editorPage.rightColumn + "");
 
       StringBuilder text = new StringBuilder ();
 
@@ -150,11 +150,16 @@ public class DatasetStage extends Stage
 
       if (editorPage.hasBeginning)
       {
-        textArea.setText ("");
-        totalLines = 0;
+        textArea.setText (text.toString ());
+        totalLines = editorPage.lines.size ();
+      }
+      else
+      {
+        textArea.appendText (text.toString ());
+        totalLines += editorPage.lines.size ();
       }
 
-      textArea.appendText (text.toString ());
+      datasetLinesText.setText (totalLines + "");
 
       if (editorPage.hasEnd)
       {
