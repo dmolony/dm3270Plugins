@@ -1,5 +1,6 @@
 package com.bytezone.plugins;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
@@ -26,7 +27,6 @@ public class DatasetStage extends Stage
   private final Button hideButton = new Button ("Hide Window");
   private final TextArea textArea = new TextArea ();
   private final Pattern p;
-  private String datasetName;
 
   public DatasetStage ()
   {
@@ -72,43 +72,24 @@ public class DatasetStage extends Stage
         && "Command ===>".equals (data.trimField (17))
         && "Scroll ===>".equals (data.trimField (19)))
     {
-      datasetName = data.trimField (12);
-      Matcher m = p.matcher (datasetName);
-      if (m.matches ())
-      {
-        System.out.println (m.groupCount ());
-        for (int i = 0; i <= m.groupCount (); i++)
-          System.out.printf ("%2d %s%n", i, m.group (i));
-
-        String name = m.group (1);
-        if (m.groupCount () >= 3)
-          name += " " + m.group (3);
-
-        setTitle (name);
-      }
 
       StringBuilder text = new StringBuilder ();
-      //      int count = 0;
-      for (ScreenField sf : modifiableFields)
+      EditorPage editorPage = new EditorPage (data, modifiableFields);
+      System.out.println (editorPage);
+
+      if (!editorPage.hasBeginning)
+        text.append ("\n");
+
+      setTitle (editorPage.datasetName);
+
+      for (String line : editorPage.lines)
       {
-        if (sf.isModifiable)
-        {
-          if (sf.getColumn () == 1 && !sf.data.equals ("******"))
-          {
-            text.append (sf.data);
-            text.append (" ");
-          }
-          if (sf.getColumn () == 8)
-          {
-            text.append (sf.data);
-            text.append ("\n");
-          }
-        }
-        //        count++;
+        text.append (line);
+        text.append ("\n");
       }
 
-      //      if (text.length () > 0)
-      //        text.deleteCharAt (text.length () - 1);
+      if (text.length () > 0)
+        text.deleteCharAt (text.length () - 1);
 
       textArea.appendText (text.toString ());
     }
@@ -123,5 +104,93 @@ public class DatasetStage extends Stage
   public void closing ()
   {
     windowSaver.saveWindow ();
+  }
+
+  public class EditorPage
+  {
+    String datasetName;
+    String memberName;
+    int firstLine = -1;
+    int lastLine;
+    boolean hasBeginning;
+    boolean hasEnd;
+    List<String> numbers = new ArrayList<> ();
+    List<String> lines = new ArrayList<> ();
+
+    public EditorPage (PluginData data, List<ScreenField> modifiableFields)
+    {
+      getDatasetName (data);
+
+      for (ScreenField sf : modifiableFields)
+      {
+        if (sf.getColumn () == 1)
+        {
+          if (sf.length == 6 && sf.data.equals ("******"))
+          {
+            //            System.out.println (sf.sequence);
+            ScreenField nextField = data.getField (sf.sequence + 1);
+            //            System.out.println (nextField);
+            if (nextField != null && nextField.length >= 72
+                && nextField.data.startsWith ("********"))
+              if (nextField.data.equals ("***************************** Top of Dat"
+                  + "a ******************************"))
+                hasBeginning = true;
+              else if (nextField.data.equals ("**************************** Bottom of D"
+                  + "ata ****************************"))
+                hasEnd = true;
+          }
+          else
+            numbers.add (sf.data);
+        }
+        if (sf.getColumn () == 8)
+          lines.add (sf.data);
+      }
+
+      if (lines.size () > 0)
+      {
+        firstLine = Integer.parseInt (numbers.get (0));
+        lastLine = Integer.parseInt (numbers.get (numbers.size () - 1));
+      }
+    }
+
+    private void getDatasetName (PluginData data)
+    {
+      datasetName = data.trimField (12);
+      Matcher m = p.matcher (datasetName);
+      if (m.matches ())
+      {
+        if (false)
+        {
+          System.out.println (m.groupCount ());
+          for (int i = 0; i <= m.groupCount (); i++)
+            System.out.printf ("%2d %s%n", i, m.group (i));
+        }
+
+        datasetName = m.group (1);
+        if (m.groupCount () >= 3)
+          memberName = m.group (3);
+        else
+          memberName = "";
+      }
+    }
+
+    @Override
+    public String toString ()
+    {
+      StringBuilder text = new StringBuilder ();
+
+      text.append (String.format ("Dataset name .... %s%n", datasetName));
+      text.append (String.format ("Member name ..... %s%n", memberName));
+      text.append (String.format ("Lines ........... %d%n", lines.size ()));
+      text.append (String.format ("First line ...... %d%n", firstLine));
+      text.append (String.format ("Last line ....... %d%n", lastLine));
+      text.append (String.format ("Has first ....... %s%n", hasBeginning));
+      text.append (String.format ("Has last ........ %s%n", hasEnd));
+
+      for (int i = 0; i < lines.size (); i++)
+        text.append (String.format ("%s %s%n", numbers.get (i), lines.get (i)));
+
+      return text.toString ();
+    }
   }
 }
