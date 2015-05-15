@@ -12,8 +12,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -32,8 +34,12 @@ public class DatasetStage extends Stage
   private final WindowSaver windowSaver = new WindowSaver (prefs, this, "PluginDataset");
   private final Button hideButton = new Button ("Hide Window");
   private final TextArea textArea = new TextArea ();
-  private final Label datasetLabel = new Label ();
+  private final TextField datasetNameText = new TextField ();
+  private final TextField memberNameText = new TextField ();
+  private final TextField datasetLinesText = new TextField ();
+  private final TextField datasetColumnsText = new TextField ();
   private final Pattern p;
+  private int totalLines = 0;
 
   private boolean doesAuto;
   private boolean doesRequest;
@@ -69,11 +75,53 @@ public class DatasetStage extends Stage
     root.setCenter (innerPane);
     root.setBottom (hbox);
 
-    hbox = new HBox ();
-    hbox.setPadding (new Insets (10, 10, 10, 10));         // trbl
-    hbox.getChildren ().addAll (new Label ("Dataset name : "), datasetLabel);
+    HBox hbox1 = new HBox (10);
 
-    innerPane.setTop (hbox);
+    Label datasetLabel = new Label ("Dataset name");
+    datasetLabel.setPrefWidth (100);
+    datasetLabel.setPrefHeight (25);
+    datasetLabel.setAlignment (Pos.CENTER_LEFT);
+
+    datasetNameText.setEditable (false);
+    datasetNameText.setPrefWidth (250);
+
+    Label datasetLinesLabel = new Label ("Lines");
+    datasetLinesLabel.setPrefWidth (55);
+    datasetLinesLabel.setPrefHeight (25);
+    datasetLinesLabel.setAlignment (Pos.CENTER_LEFT);
+
+    datasetLinesText.setEditable (false);
+    datasetLinesText.setPrefWidth (45);
+
+    hbox1.getChildren ().addAll (datasetLabel, datasetNameText, datasetLinesLabel,
+                                 datasetLinesText);
+
+    HBox hbox2 = new HBox (10);
+
+    Label memberLabel = new Label ("Member name");
+    memberLabel.setPrefWidth (100);
+    memberLabel.setPrefHeight (25);
+    memberLabel.setAlignment (Pos.CENTER_LEFT);
+
+    memberNameText.setEditable (false);
+    memberNameText.setPrefWidth (250);
+
+    Label datasetColumnsLabel = new Label ("Columns");
+    datasetColumnsLabel.setPrefWidth (55);
+    datasetColumnsLabel.setPrefHeight (25);
+    datasetColumnsLabel.setAlignment (Pos.CENTER_LEFT);
+
+    datasetColumnsText.setEditable (false);
+    datasetColumnsText.setPrefWidth (45);
+
+    hbox2.getChildren ().addAll (memberLabel, memberNameText, datasetColumnsLabel,
+                                 datasetColumnsText);
+
+    VBox vbox = new VBox (8);
+    vbox.setPadding (new Insets (10, 10, 10, 10));         // trbl
+    vbox.getChildren ().addAll (hbox1, hbox2);
+
+    innerPane.setTop (vbox);
     innerPane.setCenter (textArea);
     textArea.setFont (Font.font ("Monospaced", 13));
 
@@ -94,17 +142,20 @@ public class DatasetStage extends Stage
         && scrollPosition > commandPosition + 1)
     {
       EditorPage editorPage = new EditorPage (data, modifiableFields);
-      datasetLabel.setText (editorPage.datasetName);
+
+      datasetNameText.setText (editorPage.datasetName);
+      memberNameText.setText (editorPage.memberName);
+      totalLines += editorPage.lines.size ();
+      datasetLinesText.setText (totalLines + "");
+      datasetColumnsText.setText (editorPage.rightColumn + "");
 
       System.out.println (editorPage);
 
       StringBuilder text = new StringBuilder ();
 
+      int count = 0;
       for (String line : editorPage.lines)
-      {
-        text.append (line);
-        text.append ("\n");
-      }
+        text.append (String.format ("%s %s%n", editorPage.numbers.get (count++), line));
 
       if (editorPage.hasEnd && text.length () > 0)
         text.deleteCharAt (text.length () - 1);
