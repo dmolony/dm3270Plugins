@@ -116,10 +116,14 @@ public class DatasetStage extends Stage
 
     setOnCloseRequest (e -> closing ());
     windowSaver.restoreWindow ();
+    hideButton.requestFocus ();
   }
 
   public void showDataset (PluginData data, List<ScreenField> modifiableFields)
   {
+    if (!isShowing ())
+      show ();
+
     int editPosition = findField ("EDIT", data);
     int commandPosition = findField ("Command ===>", data);
     int scrollPosition = findField ("Scroll ===>", data);
@@ -152,6 +156,8 @@ public class DatasetStage extends Stage
       if (editorPage.hasEnd)
       {
         doesAuto = false;
+        requestFocus ();
+
         if (!editorPage.hasBeginning)
         {
           ScreenField command = data.getField (commandPosition + 1);
@@ -175,12 +181,6 @@ public class DatasetStage extends Stage
       doesAuto = false;
       doesRequest = true;
     }
-
-    if (!isShowing ())
-      show ();
-
-    //    requestFocus ();
-    hideButton.requestFocus ();
   }
 
   private int findField (String text, PluginData data)
