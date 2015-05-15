@@ -43,6 +43,7 @@ public class DatasetStage extends Stage
 
   private final Pattern p;
   private int totalLines = 0;
+  private final Font defaultFont;
 
   private boolean doesAuto;
   private boolean doesRequest;
@@ -60,6 +61,7 @@ public class DatasetStage extends Stage
 
     doesRequest = true;
     doesAuto = false;
+    defaultFont = Font.font ("Monospaced", 14);
 
     BorderPane root = new BorderPane ();
     BorderPane innerPane = new BorderPane ();
@@ -81,13 +83,13 @@ public class DatasetStage extends Stage
     HBox row1 = new HBox (10);
     HBox row2 = new HBox (10);
 
-    Label datasetLabel = getLabel ("Dataset name", 100, 25, Pos.CENTER_LEFT);
+    Label datasetLabel = getLabel ("Dataset", 55, 25, Pos.CENTER_LEFT);
     Label datasetLinesLabel = getLabel ("Lines", 55, 25, Pos.CENTER_LEFT);
 
     datasetNameText = getOutputField (250);
     datasetLinesText = getOutputField (55);
 
-    Label memberLabel = getLabel ("Member name", 100, 25, Pos.CENTER_LEFT);
+    Label memberLabel = getLabel ("Member", 55, 25, Pos.CENTER_LEFT);
     Label datasetColumnsLabel = getLabel ("Columns", 55, 25, Pos.CENTER_LEFT);
 
     memberNameText = getOutputField (250);
@@ -104,7 +106,10 @@ public class DatasetStage extends Stage
 
     innerPane.setTop (vbox);
     innerPane.setCenter (textArea);
-    textArea.setFont (Font.font ("Monospaced", 14));
+
+    textArea.setFont (defaultFont);
+    textArea.setEditable (false);
+    textArea.setFocusTraversable (false);
 
     Scene scene = new Scene (root, 500, 700);      // width, height
     setScene (scene);
@@ -193,6 +198,7 @@ public class DatasetStage extends Stage
     label.setPrefWidth (width);
     label.setPrefHeight (height);
     label.setAlignment (pos);
+    label.setFocusTraversable (false);
 
     return label;
   }
@@ -203,6 +209,8 @@ public class DatasetStage extends Stage
 
     textField.setEditable (false);
     textField.setPrefWidth (width);
+    textField.setFont (defaultFont);
+    textField.setFocusTraversable (false);
 
     return textField;
   }
