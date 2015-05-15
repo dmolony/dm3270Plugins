@@ -149,7 +149,10 @@ public class DatasetStage extends Stage
         text.deleteCharAt (text.length () - 1);
 
       if (editorPage.hasBeginning)
+      {
         textArea.setText ("");
+        totalLines = 0;
+      }
 
       textArea.appendText (text.toString ());
 
@@ -310,11 +313,27 @@ public class DatasetStage extends Stage
 
     private void getColumns (PluginData data)
     {
-      String col1 = data.trimField (14);
-      String col2 = data.trimField (15);
+      int columnsPosition = findField ("Columns", data);        // may not exist
+      if (columnsPosition < 0)
+        return;
 
-      leftColumn = Integer.parseInt (col1);
-      rightColumn = Integer.parseInt (col2);
+      ScreenField columnField = data.getField (columnsPosition);
+      if (columnField.length != 7 || columnField.isModifiable)
+        return;
+
+      String col1 = data.trimField (columnsPosition + 1);
+      String col2 = data.trimField (columnsPosition + 2);
+
+      try
+      {
+        leftColumn = Integer.parseInt (col1);
+        rightColumn = Integer.parseInt (col2);
+      }
+      catch (NumberFormatException e)
+      {
+        leftColumn = 0;
+        rightColumn = 0;
+      }
     }
 
     @Override
