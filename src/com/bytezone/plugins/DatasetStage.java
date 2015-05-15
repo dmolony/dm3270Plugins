@@ -32,12 +32,15 @@ public class DatasetStage extends Stage
       + "ata ****************************";
   private final Preferences prefs = Preferences.userNodeForPackage (this.getClass ());
   private final WindowSaver windowSaver = new WindowSaver (prefs, this, "PluginDataset");
+
   private final Button hideButton = new Button ("Hide Window");
   private final TextArea textArea = new TextArea ();
-  private final TextField datasetNameText = new TextField ();
-  private final TextField memberNameText = new TextField ();
-  private final TextField datasetLinesText = new TextField ();
-  private final TextField datasetColumnsText = new TextField ();
+
+  private final TextField datasetNameText;
+  private final TextField memberNameText;
+  private final TextField datasetLinesText;
+  private final TextField datasetColumnsText;
+
   private final Pattern p;
   private int totalLines = 0;
 
@@ -75,55 +78,33 @@ public class DatasetStage extends Stage
     root.setCenter (innerPane);
     root.setBottom (hbox);
 
-    HBox hbox1 = new HBox (10);
+    HBox row1 = new HBox (10);
+    HBox row2 = new HBox (10);
 
-    Label datasetLabel = new Label ("Dataset name");
-    datasetLabel.setPrefWidth (100);
-    datasetLabel.setPrefHeight (25);
-    datasetLabel.setAlignment (Pos.CENTER_LEFT);
+    Label datasetLabel = getLabel ("Dataset name", 100, 25, Pos.CENTER_LEFT);
+    Label datasetLinesLabel = getLabel ("Lines", 55, 25, Pos.CENTER_LEFT);
 
-    datasetNameText.setEditable (false);
-    datasetNameText.setPrefWidth (250);
+    datasetNameText = getOutputField (250);
+    datasetLinesText = getOutputField (55);
 
-    Label datasetLinesLabel = new Label ("Lines");
-    datasetLinesLabel.setPrefWidth (55);
-    datasetLinesLabel.setPrefHeight (25);
-    datasetLinesLabel.setAlignment (Pos.CENTER_LEFT);
+    Label memberLabel = getLabel ("Member name", 100, 25, Pos.CENTER_LEFT);
+    Label datasetColumnsLabel = getLabel ("Columns", 55, 25, Pos.CENTER_LEFT);
 
-    datasetLinesText.setEditable (false);
-    datasetLinesText.setPrefWidth (45);
+    memberNameText = getOutputField (250);
+    datasetColumnsText = getOutputField (55);
 
-    hbox1.getChildren ().addAll (datasetLabel, datasetNameText, datasetLinesLabel,
-                                 datasetLinesText);
-
-    HBox hbox2 = new HBox (10);
-
-    Label memberLabel = new Label ("Member name");
-    memberLabel.setPrefWidth (100);
-    memberLabel.setPrefHeight (25);
-    memberLabel.setAlignment (Pos.CENTER_LEFT);
-
-    memberNameText.setEditable (false);
-    memberNameText.setPrefWidth (250);
-
-    Label datasetColumnsLabel = new Label ("Columns");
-    datasetColumnsLabel.setPrefWidth (55);
-    datasetColumnsLabel.setPrefHeight (25);
-    datasetColumnsLabel.setAlignment (Pos.CENTER_LEFT);
-
-    datasetColumnsText.setEditable (false);
-    datasetColumnsText.setPrefWidth (45);
-
-    hbox2.getChildren ().addAll (memberLabel, memberNameText, datasetColumnsLabel,
-                                 datasetColumnsText);
+    row1.getChildren ().addAll (datasetLabel, datasetNameText, datasetLinesLabel,
+                                datasetLinesText);
+    row2.getChildren ().addAll (memberLabel, memberNameText, datasetColumnsLabel,
+                                datasetColumnsText);
 
     VBox vbox = new VBox (8);
     vbox.setPadding (new Insets (10, 10, 10, 10));         // trbl
-    vbox.getChildren ().addAll (hbox1, hbox2);
+    vbox.getChildren ().addAll (row1, row2);
 
     innerPane.setTop (vbox);
     innerPane.setCenter (textArea);
-    textArea.setFont (Font.font ("Monospaced", 13));
+    textArea.setFont (Font.font ("Monospaced", 14));
 
     Scene scene = new Scene (root, 500, 700);      // width, height
     setScene (scene);
@@ -149,8 +130,6 @@ public class DatasetStage extends Stage
       datasetLinesText.setText (totalLines + "");
       datasetColumnsText.setText (editorPage.rightColumn + "");
 
-      System.out.println (editorPage);
-
       StringBuilder text = new StringBuilder ();
 
       int count = 0;
@@ -173,6 +152,7 @@ public class DatasetStage extends Stage
           ScreenField command = data.getField (commandPosition + 1);
           command.change ("m");
           data.setKey (AIDCommand.AID_PF7);
+          textArea.positionCaret (0);
         }
       }
       else
@@ -204,6 +184,27 @@ public class DatasetStage extends Stage
       if (text.equals (sf.data))
         return sf.sequence;
     return -1;
+  }
+
+  private Label getLabel (String text, int width, int height, Pos pos)
+  {
+    Label label = new Label (text);
+
+    label.setPrefWidth (width);
+    label.setPrefHeight (height);
+    label.setAlignment (pos);
+
+    return label;
+  }
+
+  private TextField getOutputField (int width)
+  {
+    TextField textField = new TextField ();
+
+    textField.setEditable (false);
+    textField.setPrefWidth (width);
+
+    return textField;
   }
 
   public boolean doesRequest ()
@@ -240,15 +241,13 @@ public class DatasetStage extends Stage
       getColumns (data);
 
       for (ScreenField sf : modifiableFields)
-      {
         switch (sf.location.column)
         {
           case 1:
             if (sf.length == 6 && sf.data.equals ("******"))
             {
               ScreenField nextField = data.getField (sf.sequence + 1);
-              if (nextField != null && nextField.length >= 72
-                  && nextField.data.startsWith ("********"))
+              if (nextField != null && nextField.isProtected && nextField.length >= 72)
                 if (nextField.data.equals (START_DATA))
                   hasBeginning = true;
                 else if (nextField.data.equals (END_DATA))
@@ -269,7 +268,6 @@ public class DatasetStage extends Stage
           default:
             System.out.printf ("column %d: %s%n", sf.location.column, sf.data);
         }
-      }
 
       if (lines.size () > 0)
       {
