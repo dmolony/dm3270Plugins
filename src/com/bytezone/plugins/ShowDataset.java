@@ -5,13 +5,11 @@ import com.bytezone.dm3270.plugins.PluginData;
 
 public class ShowDataset extends DefaultPlugin
 {
-  DatasetStage datasetStage;
+  DatasetStage datasetStage = new DatasetStage ();
 
   @Override
   public void activate ()
   {
-    if (datasetStage == null)
-      datasetStage = new DatasetStage ();
   }
 
   @Override
@@ -24,11 +22,23 @@ public class ShowDataset extends DefaultPlugin
   @Override
   public boolean doesRequest ()
   {
-    return true;
+    return datasetStage.doesRequest ();
+  }
+
+  @Override
+  public boolean doesAuto ()
+  {
+    return datasetStage.doesAuto ();
   }
 
   @Override
   public void processRequest (PluginData data)
+  {
+    datasetStage.showDataset (data, getModifiableFields (data));
+  }
+
+  @Override
+  public void processAuto (PluginData data)
   {
     datasetStage.showDataset (data, getModifiableFields (data));
   }

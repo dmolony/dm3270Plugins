@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -17,26 +18,39 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import com.bytezone.dm3270.application.WindowSaver;
+import com.bytezone.dm3270.commands.AIDCommand;
 import com.bytezone.dm3270.plugins.PluginData;
 import com.bytezone.dm3270.plugins.ScreenField;
 
 public class DatasetStage extends Stage
 {
+  private static final String START_DATA = "***************************** Top of Dat"
+      + "a ******************************";
+  private static final String END_DATA = "**************************** Bottom of D"
+      + "ata ****************************";
   private final Preferences prefs = Preferences.userNodeForPackage (this.getClass ());
   private final WindowSaver windowSaver = new WindowSaver (prefs, this, "PluginDataset");
   private final Button hideButton = new Button ("Hide Window");
   private final TextArea textArea = new TextArea ();
+  private final Label datasetLabel = new Label ();
   private final Pattern p;
+
+  private boolean doesAuto;
+  private boolean doesRequest;
 
   public DatasetStage ()
   {
     setTitle ("Dataset Display");
     setOnCloseRequest (e -> hide ());
+    setTitle ("Dataset Display");
 
     String pattern = "([A-Z0-9]{1,8}(\\.[A-Z0-9]{1,8})*)" // dataset name
         + "(\\([A-Z0-9]{1,8}\\))?"                        // member name
         + "( - [0-9]{2}\\.[0-9]{2})?";                    // editing data
     p = Pattern.compile (pattern);
+
+    doesRequest = true;
+    doesAuto = false;
 
     BorderPane root = new BorderPane ();
     BorderPane innerPane = new BorderPane ();
@@ -55,6 +69,11 @@ public class DatasetStage extends Stage
     root.setCenter (innerPane);
     root.setBottom (hbox);
 
+    hbox = new HBox ();
+    hbox.setPadding (new Insets (10, 10, 10, 10));         // trbl
+    hbox.getChildren ().addAll (new Label ("Dataset name : "), datasetLabel);
+
+    innerPane.setTop (hbox);
     innerPane.setCenter (textArea);
     textArea.setFont (Font.font ("Monospaced", 13));
 
@@ -67,20 +86,19 @@ public class DatasetStage extends Stage
 
   public void showDataset (PluginData data, List<ScreenField> modifiableFields)
   {
-    if (data.size () > 20 && "EDIT".equals (data.trimField (11))
-        && "Columns".equals (data.trimField (13))
-        && "Command ===>".equals (data.trimField (17))
-        && "Scroll ===>".equals (data.trimField (19)))
-    {
+    int editPosition = findField ("EDIT", data);
+    int commandPosition = findField ("Command ===>", data);
+    int scrollPosition = findField ("Scroll ===>", data);
 
-      StringBuilder text = new StringBuilder ();
+    if (editPosition > 0 && commandPosition > editPosition
+        && scrollPosition > commandPosition + 1)
+    {
       EditorPage editorPage = new EditorPage (data, modifiableFields);
+      datasetLabel.setText (editorPage.datasetName);
+
       System.out.println (editorPage);
 
-      if (!editorPage.hasBeginning)
-        text.append ("\n");
-
-      setTitle (editorPage.datasetName);
+      StringBuilder text = new StringBuilder ();
 
       for (String line : editorPage.lines)
       {
@@ -88,17 +106,63 @@ public class DatasetStage extends Stage
         text.append ("\n");
       }
 
-      if (text.length () > 0)
+      if (editorPage.hasEnd && text.length () > 0)
         text.deleteCharAt (text.length () - 1);
 
+      if (editorPage.hasBeginning)
+        textArea.setText ("");
+
       textArea.appendText (text.toString ());
+
+      if (editorPage.hasEnd)
+      {
+        doesAuto = false;
+        if (!editorPage.hasBeginning)
+        {
+          ScreenField command = data.getField (commandPosition + 1);
+          command.change ("m");
+          data.setKey (AIDCommand.AID_PF7);
+        }
+      }
+      else
+      {
+        doesAuto = true;
+        data.setKey (AIDCommand.AID_PF8);
+      }
+      doesRequest = !doesAuto;
+    }
+    else
+    {
+      System.out.println ("failed test");
+      for (int i = 0; i < data.size (); i++)
+        System.out.printf ("%d [%s]%n", i, data.trimField (i));
+      doesAuto = false;
+      doesRequest = true;
     }
 
     if (!isShowing ())
       show ();
 
-    requestFocus ();
+    //    requestFocus ();
     hideButton.requestFocus ();
+  }
+
+  private int findField (String text, PluginData data)
+  {
+    for (ScreenField sf : data.screenFields)
+      if (text.equals (sf.data))
+        return sf.sequence;
+    return -1;
+  }
+
+  public boolean doesRequest ()
+  {
+    return doesRequest;
+  }
+
+  public boolean doesAuto ()
+  {
+    return doesAuto;
   }
 
   public void closing ()
@@ -114,36 +178,46 @@ public class DatasetStage extends Stage
     int lastLine;
     boolean hasBeginning;
     boolean hasEnd;
+    int leftColumn;
+    int rightColumn;
     List<String> numbers = new ArrayList<> ();
     List<String> lines = new ArrayList<> ();
 
     public EditorPage (PluginData data, List<ScreenField> modifiableFields)
     {
       getDatasetName (data);
+      getColumns (data);
 
       for (ScreenField sf : modifiableFields)
       {
-        if (sf.getColumn () == 1)
+        switch (sf.location.column)
         {
-          if (sf.length == 6 && sf.data.equals ("******"))
-          {
-            //            System.out.println (sf.sequence);
-            ScreenField nextField = data.getField (sf.sequence + 1);
-            //            System.out.println (nextField);
-            if (nextField != null && nextField.length >= 72
-                && nextField.data.startsWith ("********"))
-              if (nextField.data.equals ("***************************** Top of Dat"
-                  + "a ******************************"))
-                hasBeginning = true;
-              else if (nextField.data.equals ("**************************** Bottom of D"
-                  + "ata ****************************"))
-                hasEnd = true;
-          }
-          else
-            numbers.add (sf.data);
+          case 1:
+            if (sf.length == 6 && sf.data.equals ("******"))
+            {
+              ScreenField nextField = data.getField (sf.sequence + 1);
+              if (nextField != null && nextField.length >= 72
+                  && nextField.data.startsWith ("********"))
+                if (nextField.data.equals (START_DATA))
+                  hasBeginning = true;
+                else if (nextField.data.equals (END_DATA))
+                  hasEnd = true;
+            }
+            else
+              numbers.add (sf.data);
+            break;
+
+          case 8:
+            lines.add (sf.data);
+            break;
+
+          case 14:      // command field
+          case 75:      // CSR/PAGE
+            break;
+
+          default:
+            System.out.printf ("column %d: %s%n", sf.location.column, sf.data);
         }
-        if (sf.getColumn () == 8)
-          lines.add (sf.data);
       }
 
       if (lines.size () > 0)
@@ -168,10 +242,22 @@ public class DatasetStage extends Stage
 
         datasetName = m.group (1);
         if (m.groupCount () >= 3)
-          memberName = m.group (3);
+        {
+          String name = m.group (3);
+          memberName = name.substring (1, name.length () - 1);
+        }
         else
           memberName = "";
       }
+    }
+
+    private void getColumns (PluginData data)
+    {
+      String col1 = data.trimField (14);
+      String col2 = data.trimField (15);
+
+      leftColumn = Integer.parseInt (col1);
+      rightColumn = Integer.parseInt (col2);
     }
 
     @Override
@@ -186,6 +272,9 @@ public class DatasetStage extends Stage
       text.append (String.format ("Last line ....... %d%n", lastLine));
       text.append (String.format ("Has first ....... %s%n", hasBeginning));
       text.append (String.format ("Has last ........ %s%n", hasEnd));
+      text.append (String.format ("Left column ..... %d%n", leftColumn));
+      text.append (String.format ("Right column .... %d%n", rightColumn));
+      text.append ("\n");
 
       for (int i = 0; i < lines.size (); i++)
         text.append (String.format ("%s %s%n", numbers.get (i), lines.get (i)));

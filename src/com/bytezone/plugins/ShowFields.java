@@ -11,9 +11,7 @@ public class ShowFields extends DefaultPlugin
   public void activate ()
   {
     if (debugStage == null)
-    {
       debugStage = new DebugStage ();
-    }
   }
 
   @Override
