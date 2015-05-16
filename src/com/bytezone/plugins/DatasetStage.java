@@ -42,7 +42,8 @@ public class DatasetStage extends Stage
   private final TextField datasetColumnsText;
 
   private final Pattern p;
-  private int totalLines = 0;
+  private int totalLines;
+  private int largestColumn;
   private final Font defaultFont;
 
   private boolean doesAuto;
@@ -133,11 +134,11 @@ public class DatasetStage extends Stage
     {
       EditorPage editorPage = new EditorPage (data, modifiableFields);
 
-      datasetNameText.setText (editorPage.datasetName);
-      memberNameText.setText (editorPage.memberName);
-
-      if (editorPage.rightColumn > 0)
-        datasetColumnsText.setText (editorPage.rightColumn + "");
+      if (editorPage.rightColumn > largestColumn)
+      {
+        largestColumn = editorPage.rightColumn;
+        datasetColumnsText.setText (largestColumn + "");
+      }
 
       StringBuilder text = new StringBuilder ();
 
@@ -152,6 +153,8 @@ public class DatasetStage extends Stage
       {
         textArea.setText (text.toString ());
         totalLines = editorPage.lines.size ();
+        datasetNameText.setText (editorPage.datasetName);
+        memberNameText.setText (editorPage.memberName);
       }
       else
       {
