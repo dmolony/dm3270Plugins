@@ -72,7 +72,7 @@ public class FanLogoff extends DefaultPlugin
     {
       ScreenField nextField = data.getField (index + 1);
       if (nextField != null && nextField.isModifiable
-          && nextField.length == nextFieldLength)
+          && nextField.getLength () == nextFieldLength)
         return true;
     }
     return false;

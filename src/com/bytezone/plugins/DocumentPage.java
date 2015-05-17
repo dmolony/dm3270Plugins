@@ -50,10 +50,11 @@ public class DocumentPage
       switch (sf.location.column)
       {
         case 1:
-          if (sf.length == 6 && sf.data.equals ("******"))
+          if (sf.getLength () == 6 && sf.data.equals ("******"))
           {
             ScreenField nextField = data.getField (sf.sequence + 1);
-            if (nextField != null && nextField.isProtected && nextField.length >= 72)
+            if (nextField != null && nextField.isProtected
+                && nextField.getLength () >= 72)
               if (nextField.data.equals (START_DATA))
                 hasBeginning = true;
               else if (nextField.data.equals (END_DATA))
@@ -124,7 +125,7 @@ public class DocumentPage
       return;
 
     ScreenField columnField = data.getField (columnsPosition);
-    if (columnField.length != 7 || columnField.isModifiable)
+    if (columnField.getLength () != 7 || columnField.isModifiable)
       return;
 
     String col1 = data.trimField (columnsPosition + 1);

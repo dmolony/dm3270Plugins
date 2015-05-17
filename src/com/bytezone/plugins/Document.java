@@ -5,15 +5,26 @@ import java.util.List;
 
 public class Document
 {
+  final String datasetName;
+  final String memberName;
+  int maxColumns;
+  int totalLines;
+
   List<DocumentPage> pages = new ArrayList<> ();
 
   public Document (DocumentPage page)
   {
+    datasetName = page.datasetName;
+    memberName = page.memberName;
+
     addDocumentPage (page);
   }
 
   public void addDocumentPage (DocumentPage page)
   {
+    assert datasetName.equals (page.datasetName);
+    assert memberName.equals (page.memberName);
+
     boolean found = false;
     for (DocumentPage dp : pages)
     {
