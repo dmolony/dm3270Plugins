@@ -7,13 +7,24 @@ public class Document
 {
   List<DocumentPage> pages = new ArrayList<> ();
 
-  public Document ()
+  public Document (DocumentPage page)
   {
-
+    addDocumentPage (page);
   }
 
-  public void addDocumentPage (DocumentPage documentPage)
+  public void addDocumentPage (DocumentPage page)
   {
+    for (DocumentPage dp : pages)
+    {
+      if (dp.matches (page))
+      {
 
+      }
+    }
+  }
+
+  public boolean isComplete ()
+  {
+    return false;
   }
 }

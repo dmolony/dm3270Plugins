@@ -21,16 +21,27 @@ public class DocumentPage
 
   String datasetName;
   String memberName;
+  String fullName;
+
   int firstLine = -1;
   int lastLine;
+
   boolean hasBeginning;
   boolean hasEnd;
+
   int leftColumn;
   int rightColumn;
+
   List<String> numbers = new ArrayList<> ();
   List<String> lines = new ArrayList<> ();
 
-  public DocumentPage (PluginData data, List<ScreenField> modifiableFields)
+  public static DocumentPage createPage (PluginData data,
+      List<ScreenField> modifiableFields)
+  {
+    return new DocumentPage (data, modifiableFields);
+  }
+
+  private DocumentPage (PluginData data, List<ScreenField> modifiableFields)
   {
     getDatasetName (data);
     getColumns (data);
@@ -71,6 +82,12 @@ public class DocumentPage
     }
   }
 
+  public boolean matches (DocumentPage otherPage)
+  {
+    return leftColumn == otherPage.leftColumn && rightColumn == otherPage.rightColumn
+        && firstLine >= 0 && firstLine == otherPage.firstLine;
+  }
+
   private void getDatasetName (PluginData data)
   {
 
@@ -90,9 +107,13 @@ public class DocumentPage
       {
         String name = m.group (3);
         memberName = name.substring (1, name.length () - 1);
+        fullName = String.format ("%s(%s)", datasetName, memberName);
       }
       else
+      {
         memberName = "";
+        fullName = datasetName;
+      }
     }
   }
 

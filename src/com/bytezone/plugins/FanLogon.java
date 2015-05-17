@@ -105,7 +105,7 @@ public class FanLogon extends DefaultPlugin
       }
       else
       {
-        showAlert (AlertType.ERROR, "Wrong screen (heading doesn't match)");
+        //        showAlert (AlertType.ERROR, "Wrong screen (heading doesn't match)");
         doesAuto = false;
       }
     }

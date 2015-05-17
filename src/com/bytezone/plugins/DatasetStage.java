@@ -38,10 +38,7 @@ public class DatasetStage extends Stage
   private int largestColumn;
   private final Font defaultFont;
 
-  private boolean doesAuto;
-  private boolean doesRequest;
-
-  private final Document document = new Document ();
+  //  private final Document document = new Document ();
 
   public DatasetStage ()
   {
@@ -49,8 +46,8 @@ public class DatasetStage extends Stage
     setOnCloseRequest (e -> hide ());
     setTitle ("Dataset Display");
 
-    doesRequest = true;
-    doesAuto = false;
+    //    doesRequest = true;
+    //    doesAuto = false;
     defaultFont = Font.font ("Monospaced", 14);
 
     BorderPane root = new BorderPane ();
@@ -109,7 +106,13 @@ public class DatasetStage extends Stage
     hideButton.requestFocus ();
   }
 
-  public void showDataset (PluginData data, List<ScreenField> modifiableFields)
+  public void showDataset (Document document)
+  {
+    if (!isShowing ())
+      show ();
+  }
+
+  private void showDataset (PluginData data, List<ScreenField> modifiableFields)
   {
     if (!isShowing ())
       show ();
@@ -121,44 +124,44 @@ public class DatasetStage extends Stage
     if (editPosition > 0 && commandPosition > editPosition
         && scrollPosition > commandPosition + 1)
     {
-      DocumentPage editorPage = new DocumentPage (data, modifiableFields);
+      DocumentPage page = DocumentPage.createPage (data, modifiableFields);
 
-      if (editorPage.rightColumn > largestColumn)
+      if (page.rightColumn > largestColumn)
       {
-        largestColumn = editorPage.rightColumn;
+        largestColumn = page.rightColumn;
         datasetColumnsText.setText (largestColumn + "");
       }
 
       StringBuilder text = new StringBuilder ();
 
       int count = 0;
-      for (String line : editorPage.lines)
-        text.append (String.format ("%s %s%n", editorPage.numbers.get (count++), line));
+      for (String line : page.lines)
+        text.append (String.format ("%s %s%n", page.numbers.get (count++), line));
 
-      if (editorPage.hasEnd && text.length () > 0)
+      if (page.hasEnd && text.length () > 0)
         text.deleteCharAt (text.length () - 1);
 
-      if (editorPage.hasBeginning)
+      if (page.hasBeginning)
       {
         textArea.setText (text.toString ());
-        totalLines = editorPage.lines.size ();
-        datasetNameText.setText (editorPage.datasetName);
-        memberNameText.setText (editorPage.memberName);
+        totalLines = page.lines.size ();
+        datasetNameText.setText (page.datasetName);
+        memberNameText.setText (page.memberName);
       }
       else
       {
         textArea.appendText (text.toString ());
-        totalLines += editorPage.lines.size ();
+        totalLines += page.lines.size ();
       }
 
       datasetLinesText.setText (totalLines + "");
 
-      if (editorPage.hasEnd)
+      if (page.hasEnd)
       {
         doesAuto = false;
         requestFocus ();
 
-        if (!editorPage.hasBeginning)
+        if (!page.hasBeginning)
         {
           ScreenField command = data.getField (commandPosition + 1);
           command.change ("m");
@@ -215,15 +218,15 @@ public class DatasetStage extends Stage
     return textField;
   }
 
-  public boolean doesRequest ()
-  {
-    return doesRequest;
-  }
-
-  public boolean doesAuto ()
-  {
-    return doesAuto;
-  }
+  //  public boolean doesRequest ()
+  //  {
+  //    return doesRequest;
+  //  }
+  //
+  //  public boolean doesAuto ()
+  //  {
+  //    return doesAuto;
+  //  }
 
   public void closing ()
   {
