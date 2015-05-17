@@ -68,7 +68,7 @@ public class FanLogoff extends DefaultPlugin
       ScreenLocation expectedLocation, int nextFieldLength)
   {
     if (field.isProtected && field.location.matches (expectedLocation)
-        && field.data.equals (text))
+        && field.getFieldValue ().equals (text))
     {
       ScreenField nextField = data.getField (index + 1);
       if (nextField != null && nextField.isModifiable

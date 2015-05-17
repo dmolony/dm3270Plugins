@@ -85,7 +85,7 @@ public class DebugStage extends Stage
 
     // change the filter predicate
     filteredData.setPredicate (screenField -> //
-        (screenField.isModifiable || !screenField.data.isEmpty () || !hideEmpty));
+        (screenField.isModifiable || !screenField.getFieldValue ().isEmpty () || !hideEmpty));
 
     // restore the previously selected item (if it is still visible)
     if (selectedRecord != null)
@@ -108,7 +108,7 @@ public class DebugStage extends Stage
 
     // change the filter predicate
     filteredData.setPredicate (screenField -> //
-        (screenField.isModifiable || !screenField.data.isEmpty () || !hideEmpty));
+        (screenField.isModifiable || !screenField.getFieldValue ().isEmpty () || !hideEmpty));
 
     SortedList<ScreenField> sortedData = new SortedList<> (filteredData);
     sortedData.comparatorProperty ().bind (table.comparatorProperty ());

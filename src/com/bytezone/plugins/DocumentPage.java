@@ -50,22 +50,22 @@ public class DocumentPage
       switch (sf.location.column)
       {
         case 1:
-          if (sf.getLength () == 6 && sf.data.equals ("******"))
+          if (sf.getLength () == 6 && sf.getFieldValue ().equals ("******"))
           {
             ScreenField nextField = data.getField (sf.sequence + 1);
             if (nextField != null && nextField.isProtected
                 && nextField.getLength () >= 72)
-              if (nextField.data.equals (START_DATA))
+              if (nextField.getFieldValue ().equals (START_DATA))
                 hasBeginning = true;
-              else if (nextField.data.equals (END_DATA))
+              else if (nextField.getFieldValue ().equals (END_DATA))
                 hasEnd = true;
           }
           else
-            numbers.add (sf.data);
+            numbers.add (sf.getFieldValue ());
           break;
 
         case 8:
-          lines.add (sf.data);
+          lines.add (sf.getFieldValue ());
           break;
 
         case 14:      // command field
@@ -73,7 +73,7 @@ public class DocumentPage
           break;
 
         default:
-          System.out.printf ("column %d: %s%n", sf.location.column, sf.data);
+          System.out.printf ("column %d: %s%n", sf.location.column, sf.getFieldValue ());
       }
 
     if (lines.size () > 0)
@@ -146,7 +146,7 @@ public class DocumentPage
   private int findField (String text, PluginData data)
   {
     for (ScreenField sf : data.screenFields)
-      if (text.equals (sf.data))
+      if (text.equals (sf.getFieldValue ()))
         return sf.sequence;
     return -1;
   }
