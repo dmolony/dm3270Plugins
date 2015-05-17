@@ -17,6 +17,8 @@ public class ShowDataset extends DefaultPlugin
   @Override
   public void activate ()
   {
+    doesAuto = false;
+    doesRequest = true;
   }
 
   @Override
@@ -24,6 +26,9 @@ public class ShowDataset extends DefaultPlugin
   {
     if (datasetStage != null)
       datasetStage.hide ();
+
+    doesAuto = false;
+    doesRequest = false;
   }
 
   @Override
@@ -42,12 +47,20 @@ public class ShowDataset extends DefaultPlugin
   public void processRequest (PluginData data)
   {
     DocumentPage page = DocumentPage.createPage (data, getModifiableFields (data));
+    if (page == null)
+    {
+      System.out.println ("Not a document page");
+      return;
+    }
+
     String name = page.fullName;
     if (documents.containsKey (name))
+    {
       currentDocument = documents.get (name);
+      currentDocument.addDocumentPage (page);
+    }
     else
       currentDocument = new Document (page);
-    currentDocument.addDocumentPage (page);
 
     if (currentDocument.isComplete ())
       datasetStage.showDataset (currentDocument);

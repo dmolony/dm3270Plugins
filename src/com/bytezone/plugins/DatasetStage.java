@@ -218,16 +218,6 @@ public class DatasetStage extends Stage
     return textField;
   }
 
-  //  public boolean doesRequest ()
-  //  {
-  //    return doesRequest;
-  //  }
-  //
-  //  public boolean doesAuto ()
-  //  {
-  //    return doesAuto;
-  //  }
-
   public void closing ()
   {
     windowSaver.saveWindow ();

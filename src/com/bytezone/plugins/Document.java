@@ -14,13 +14,25 @@ public class Document
 
   public void addDocumentPage (DocumentPage page)
   {
+    boolean found = false;
     for (DocumentPage dp : pages)
     {
       if (dp.matches (page))
       {
-
+        found = true;
+        break;
       }
     }
+
+    if (!found)
+    {
+      pages.add (page);
+      System.out.println ("adding");
+    }
+    else
+      System.out.println ("replacing");
+
+    System.out.println (page);
   }
 
   public boolean isComplete ()
