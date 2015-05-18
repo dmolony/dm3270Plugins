@@ -20,6 +20,10 @@ public class ShowDataset extends DefaultPlugin
   private final int maxLoops = 20;
   private DocumentPage previousPage;
 
+  private boolean pendingBottomRight;
+  private boolean[][] visitedPages;
+  private int unvisitedPages = -1;
+
   @Override
   public void activate ()
   {
@@ -53,6 +57,7 @@ public class ShowDataset extends DefaultPlugin
   public void processRequest (PluginData data)
   {
     currentDocument = null;
+    previousPage = null;
     loopCount = 0;
 
     DocumentPage page = DocumentPage.createPage (data, getModifiableFields (data));
@@ -83,7 +88,6 @@ public class ShowDataset extends DefaultPlugin
     else
       data.key = AIDCommand.AID_PF8;
     doesAuto = true;
-    System.out.println (data.key);
   }
 
   @Override
@@ -105,17 +109,21 @@ public class ShowDataset extends DefaultPlugin
       return;
     }
 
+    if (pendingBottomRight)
+    {
+      pendingBottomRight = false;
+      prepareVisitorGrid (page.lastLine, page.rightColumn);
+    }
+
     if (page.matches (previousPage))
     {
       System.out.println ("We're done");
       doesAuto = false;
-      //      datasetStage.setDataset (currentDocument);
       return;
     }
 
     previousPage = page;
 
-    System.out.println (currentDocument);
     if (currentDocument == null)
     {
       if (page.firstLine != 1)
@@ -137,15 +145,18 @@ public class ShowDataset extends DefaultPlugin
     else
       currentDocument.addDocumentPage (page);
 
+    System.out.println (currentDocument);
+
     System.out.println ("Where to now?");
     // scroll to next page
     if (page.leftColumn == 1)
     {
       if (page.hasEnd)
       {
-        data.key = AIDCommand.AID_PF11;       // go right
+        data.key = AIDCommand.AID_PF11;       // go max right
         setMax (data);
         System.out.println ("go right max");
+        pendingBottomRight = true;
         return;
       }
       else
@@ -184,6 +195,20 @@ public class ShowDataset extends DefaultPlugin
       ScreenField inputField = data.getField (commandField.sequence + 1);
       inputField.change ("m");
     }
+  }
+
+  private void prepareVisitorGrid (int rows, int columns)
+  {
+    // need to divide these by the page size
+    currentDocument.maxColumns = columns;
+    currentDocument.totalLines = rows;
+    visitedPages = new boolean[rows][columns];
+    for (int i = 0; i < rows; i++)
+      visitedPages[i][0] = true;
+    visitedPages[rows - 1][columns - 1] = true;
+    unvisitedPages = rows * (columns - 1) - 1;
+    System.out.printf ("Grid %d rows x %d columns%n", rows, columns);
+    System.out.printf ("Visited: %d, unvisited: %d%n", (rows * columns), unvisitedPages);
   }
 
   private void setCurrentDocument (DocumentPage page)

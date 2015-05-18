@@ -97,6 +97,19 @@ public class Document
     }
   }
 
+  @Override
+  public String toString ()
+  {
+    StringBuilder text = new StringBuilder ();
+
+    text.append (String.format ("Dataset name ... %s%n", datasetName));
+    text.append (String.format ("Member name .... %s%n", memberName));
+    text.append (String.format ("Lines .......... %d%n", totalLines));
+    text.append (String.format ("Columns ........ %d", maxColumns));
+
+    return text.toString ();
+  }
+
   class Line
   {
     String text;
