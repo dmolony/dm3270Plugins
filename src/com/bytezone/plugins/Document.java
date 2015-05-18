@@ -1,6 +1,7 @@
 package com.bytezone.plugins;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Document
@@ -27,6 +28,7 @@ public class Document
     assert memberName.equals (page.memberName);
 
     boolean found = false;
+    int index = 0;
     for (DocumentPage dp : pages)
     {
       if (dp.matches (page))
@@ -34,6 +36,7 @@ public class Document
         found = true;
         break;
       }
+      index++;
     }
 
     if (!found)
@@ -42,7 +45,10 @@ public class Document
       System.out.println ("adding");
     }
     else
+    {
+      pages.add (index, page);
       System.out.println ("replacing");
+    }
 
     System.out.println (page);
   }
@@ -57,8 +63,13 @@ public class Document
   private void stitch ()
   {
     int lineNo = 0;
+    Collections.sort (pages);
+
     for (DocumentPage page : pages)
     {
+      if (page.rightColumn > maxColumns)
+        maxColumns = page.rightColumn;
+
       if (page.leftColumn == 1)
       {
         int count = 0;
@@ -74,10 +85,12 @@ public class Document
       }
       else
       {
+        int col = page.leftColumn + 6;
+        String format = "%-" + col + "." + col + "s%s";
         for (String text : page.lines)
         {
           Line line = lines.get (lineNo++);
-          line.text += text;      // wrong but closer
+          line.text = String.format (format, line.text, text);
           line.rightColumn = page.rightColumn;
         }
       }

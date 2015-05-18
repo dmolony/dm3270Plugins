@@ -107,7 +107,6 @@ public class DatasetStage extends Stage
   {
     datasetNameText.setText (document.datasetName);
     memberNameText.setText (document.memberName);
-    datasetColumnsText.setText (document.maxColumns + "");
     datasetLinesText.setText (document.getLines ().size () + "");
 
     textArea.clear ();
@@ -116,9 +115,13 @@ public class DatasetStage extends Stage
       textArea.appendText (line.toString ());
       textArea.appendText ("\n");
     }
+    datasetColumnsText.setText (document.maxColumns + "");
 
     if (textArea.getLength () > 0)
+    {
       textArea.deleteText (textArea.getLength () - 1, textArea.getLength ());
+      textArea.positionCaret (0);
+    }
   }
 
   //  public void showDataset (Document document)

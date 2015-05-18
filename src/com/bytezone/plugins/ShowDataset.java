@@ -144,7 +144,8 @@ public class ShowDataset extends DefaultPlugin
       if (page.hasEnd)
       {
         data.key = AIDCommand.AID_PF11;       // go right
-        System.out.println ("go right");
+        setMax (data);
+        System.out.println ("go right max");
         return;
       }
       else
@@ -179,7 +180,10 @@ public class ShowDataset extends DefaultPlugin
   {
     ScreenField commandField = data.getField ("Command ===>");
     if (commandField != null)
-      commandField.change ("m");
+    {
+      ScreenField inputField = data.getField (commandField.sequence + 1);
+      inputField.change ("m");
+    }
   }
 
   private void setCurrentDocument (DocumentPage page)

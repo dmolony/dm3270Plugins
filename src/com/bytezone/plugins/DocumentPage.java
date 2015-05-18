@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import com.bytezone.dm3270.plugins.PluginData;
 import com.bytezone.dm3270.plugins.ScreenField;
 
-public class DocumentPage
+public class DocumentPage implements Comparable<DocumentPage>
 {
   private static final String START_DATA = "***************************** Top of Dat"
       + "a ******************************";
@@ -67,10 +67,12 @@ public class DocumentPage
             ScreenField nextField = data.getField (sf.sequence + 1);
             if (nextField != null && nextField.isProtected
                 && nextField.getLength () >= 72)
-              if (nextField.getFieldValue ().equals (START_DATA))
+            {
+              if (nextField.getFieldValue ().startsWith (START_DATA))
                 hasBeginning = true;
-              else if (nextField.getFieldValue ().equals (END_DATA))
+              else if (nextField.getFieldValue ().startsWith (END_DATA))
                 hasEnd = true;
+            }
           }
           else
             numbers.add (sf.getFieldValue ());
@@ -160,7 +162,7 @@ public class DocumentPage
   private static ScreenField findField (String text, PluginData data)
   {
     for (ScreenField screenField : data.screenFields)
-      if (text.equals (screenField.getFieldValue ()))
+      if (text.equals (screenField.getFieldValue ().trim ()))
         return screenField;
     return null;
   }
@@ -185,5 +187,13 @@ public class DocumentPage
       text.append (String.format ("%s %s%n", numbers.get (i), lines.get (i)));
 
     return text.toString ();
+  }
+
+  @Override
+  public int compareTo (DocumentPage o)
+  {
+    if (leftColumn == o.leftColumn)
+      return firstLine - o.firstLine;
+    return leftColumn - o.leftColumn;
   }
 }
