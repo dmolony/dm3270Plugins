@@ -11,6 +11,7 @@ public class Document
   int totalLines;
 
   List<DocumentPage> pages = new ArrayList<> ();
+  List<Line> lines = new ArrayList<> ();
 
   public Document (DocumentPage page)
   {
@@ -46,8 +47,53 @@ public class Document
     System.out.println (page);
   }
 
-  public boolean isComplete ()
+  public List<Line> getLines ()
   {
-    return false;
+    if (lines.size () == 0)
+      stitch ();
+    return lines;
+  }
+
+  private void stitch ()
+  {
+    int lineNo = 0;
+    for (DocumentPage page : pages)
+    {
+      if (page.leftColumn == 1)
+      {
+        int count = 0;
+        for (String text : page.lines)
+        {
+          String number = page.numbers.get (count++);
+          Line line = new Line ();
+          line.text = String.format ("%s %s", number, text);
+          line.leftColumn = page.leftColumn;
+          line.rightColumn = page.rightColumn;
+          lines.add (line);
+        }
+      }
+      else
+      {
+        for (String text : page.lines)
+        {
+          Line line = lines.get (lineNo++);
+          line.text += text;      // wrong but closer
+          line.rightColumn = page.rightColumn;
+        }
+      }
+    }
+  }
+
+  class Line
+  {
+    String text;
+    int leftColumn;
+    int rightColumn;
+
+    @Override
+    public String toString ()
+    {
+      return text;
+    }
   }
 }

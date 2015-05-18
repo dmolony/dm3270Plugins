@@ -1,6 +1,5 @@
 package com.bytezone.plugins;
 
-import java.util.List;
 import java.util.prefs.Preferences;
 
 import javafx.geometry.Insets;
@@ -17,9 +16,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import com.bytezone.dm3270.application.WindowSaver;
-import com.bytezone.dm3270.commands.AIDCommand;
-import com.bytezone.dm3270.plugins.PluginData;
-import com.bytezone.dm3270.plugins.ScreenField;
+import com.bytezone.plugins.Document.Line;
 
 public class DatasetStage extends Stage
 {
@@ -34,8 +31,8 @@ public class DatasetStage extends Stage
   private final TextField datasetLinesText;
   private final TextField datasetColumnsText;
 
-  private int totalLines;
-  private int largestColumn;
+  //  private int totalLines;
+  //  private int largestColumn;
   private final Font defaultFont;
 
   //  private final Document document = new Document ();
@@ -106,93 +103,114 @@ public class DatasetStage extends Stage
     hideButton.requestFocus ();
   }
 
-  public void showDataset (Document document)
+  public void setDocument (Document document)
   {
-    if (!isShowing ())
-      show ();
-  }
+    datasetNameText.setText (document.datasetName);
+    memberNameText.setText (document.memberName);
+    datasetColumnsText.setText (document.maxColumns + "");
+    datasetLinesText.setText (document.getLines ().size () + "");
 
-  private void showDataset (PluginData data, List<ScreenField> modifiableFields)
-  {
-    if (!isShowing ())
-      show ();
-
-    int editPosition = findField ("EDIT", data);
-    int commandPosition = findField ("Command ===>", data);
-    int scrollPosition = findField ("Scroll ===>", data);
-
-    if (editPosition > 0 && commandPosition > editPosition
-        && scrollPosition > commandPosition + 1)
+    textArea.clear ();
+    for (Line line : document.getLines ())
     {
-      DocumentPage page = DocumentPage.createPage (data, modifiableFields);
-
-      if (page.rightColumn > largestColumn)
-      {
-        largestColumn = page.rightColumn;
-        datasetColumnsText.setText (largestColumn + "");
-      }
-
-      StringBuilder text = new StringBuilder ();
-
-      int count = 0;
-      for (String line : page.lines)
-        text.append (String.format ("%s %s%n", page.numbers.get (count++), line));
-
-      if (page.hasEnd && text.length () > 0)
-        text.deleteCharAt (text.length () - 1);
-
-      if (page.hasBeginning)
-      {
-        textArea.setText (text.toString ());
-        totalLines = page.lines.size ();
-        datasetNameText.setText (page.datasetName);
-        memberNameText.setText (page.memberName);
-      }
-      else
-      {
-        textArea.appendText (text.toString ());
-        totalLines += page.lines.size ();
-      }
-
-      datasetLinesText.setText (totalLines + "");
-
-      if (page.hasEnd)
-      {
-        doesAuto = false;
-        requestFocus ();
-
-        if (!page.hasBeginning)
-        {
-          ScreenField command = data.getField (commandPosition + 1);
-          command.change ("m");
-          data.setKey (AIDCommand.AID_PF7);
-          textArea.positionCaret (0);
-        }
-      }
-      else
-      {
-        doesAuto = true;
-        data.setKey (AIDCommand.AID_PF8);
-      }
-      doesRequest = !doesAuto;
+      textArea.appendText (line.toString ());
+      textArea.appendText ("\n");
     }
-    else
-    {
-      System.out.println ("failed test");
-      for (int i = 0; i < data.size (); i++)
-        System.out.printf ("%d [%s]%n", i, data.trimField (i));
-      doesAuto = false;
-      doesRequest = true;
-    }
+
+    if (textArea.getLength () > 0)
+      textArea.deleteText (textArea.getLength () - 1, textArea.getLength ());
   }
 
-  private int findField (String text, PluginData data)
-  {
-    for (ScreenField sf : data.screenFields)
-      if (text.equals (sf.data))
-        return sf.sequence;
-    return -1;
-  }
+  //  public void showDataset (Document document)
+  //  {
+  //    if (textArea.getLength () == 0)
+  //      setDocument (document);
+  //
+  //    if (!isShowing ())
+  //      show ();
+  //  }
+
+  //  private void showDataset (PluginData data, List<ScreenField> modifiableFields)
+  //  {
+  //    if (!isShowing ())
+  //      show ();
+  //
+  //    int editPosition = findField ("EDIT", data);
+  //    int commandPosition = findField ("Command ===>", data);
+  //    int scrollPosition = findField ("Scroll ===>", data);
+  //
+  //    if (editPosition > 0 && commandPosition > editPosition
+  //        && scrollPosition > commandPosition + 1)
+  //    {
+  //      DocumentPage page = DocumentPage.createPage (data, modifiableFields);
+  //
+  //      if (page.rightColumn > largestColumn)
+  //      {
+  //        largestColumn = page.rightColumn;
+  //        datasetColumnsText.setText (largestColumn + "");
+  //      }
+  //
+  //      StringBuilder text = new StringBuilder ();
+  //
+  //      int count = 0;
+  //      for (String line : page.lines)
+  //        text.append (String.format ("%s %s%n", page.numbers.get (count++), line));
+  //
+  //      if (page.hasEnd && text.length () > 0)
+  //        text.deleteCharAt (text.length () - 1);
+  //
+  //      if (page.hasBeginning)
+  //      {
+  //        textArea.setText (text.toString ());
+  //        totalLines = page.lines.size ();
+  //        datasetNameText.setText (page.datasetName);
+  //        memberNameText.setText (page.memberName);
+  //      }
+  //      else
+  //      {
+  //        textArea.appendText (text.toString ());
+  //        totalLines += page.lines.size ();
+  //      }
+  //
+  //      datasetLinesText.setText (totalLines + "");
+  //
+  //      if (page.hasEnd)
+  //      {
+  //        doesAuto = false;
+  //        requestFocus ();
+  //
+  //        if (!page.hasBeginning)
+  //        {
+  //          ScreenField command = data.getField (commandPosition + 1);
+  //          command.change ("m");
+  //          data.setKey (AIDCommand.AID_PF7);
+  //          textArea.positionCaret (0);
+  //        }
+  //      }
+  //      else
+  //      {
+  //        doesAuto = true;
+  //        data.setKey (AIDCommand.AID_PF8);
+  //      }
+  //      doesRequest = !doesAuto;
+  //    }
+  //    else
+  //    {
+  //      System.out.println ("failed test");
+  //      for (int i = 0; i < data.size (); i++)
+  //        System.out.printf ("%d [%s]%n", i, data.trimField (i));
+  //      doesAuto = false;
+  //      doesRequest = true;
+  //    }
+  //  }
+
+  //  private int findField (String text, PluginData data)
+  //  {
+  //    for (ScreenField sf : data.screenFields)
+  //      if (text.equals (sf.getFieldValue ()))
+  //        return sf.sequence;
+  //    return -1;
+  //  }
 
   private Label getLabel (String text, int width, int height, Pos pos)
   {

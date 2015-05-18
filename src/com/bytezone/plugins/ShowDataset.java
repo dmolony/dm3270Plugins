@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import com.bytezone.dm3270.commands.AIDCommand;
 import com.bytezone.dm3270.plugins.DefaultPlugin;
 import com.bytezone.dm3270.plugins.PluginData;
+import com.bytezone.dm3270.plugins.ScreenField;
 
 public class ShowDataset extends DefaultPlugin
 {
@@ -17,6 +18,7 @@ public class ShowDataset extends DefaultPlugin
 
   private int loopCount;
   private final int maxLoops = 20;
+  private DocumentPage previousPage;
 
   @Override
   public void activate ()
@@ -76,15 +78,18 @@ public class ShowDataset extends DefaultPlugin
 
     setCurrentDocument (page);
 
-    if (currentDocument.isComplete ())
-      datasetStage.showDataset (currentDocument);
+    if (page.hasEnd)
+      data.key = AIDCommand.AID_PF11;
     else
-      doesAuto = true;
+      data.key = AIDCommand.AID_PF8;
+    doesAuto = true;
+    System.out.println (data.key);
   }
 
   @Override
   public void processAuto (PluginData data)
   {
+    System.out.printf ("Loopcount %d%n", loopCount);
     if (++loopCount > maxLoops)
     {
       System.out.println ("loop count exceeded");
@@ -100,6 +105,17 @@ public class ShowDataset extends DefaultPlugin
       return;
     }
 
+    if (page.matches (previousPage))
+    {
+      System.out.println ("We're done");
+      doesAuto = false;
+      //      datasetStage.setDataset (currentDocument);
+      return;
+    }
+
+    previousPage = page;
+
+    System.out.println (currentDocument);
     if (currentDocument == null)
     {
       if (page.firstLine != 1)
@@ -121,45 +137,49 @@ public class ShowDataset extends DefaultPlugin
     else
       currentDocument.addDocumentPage (page);
 
-    if (currentDocument.isComplete ())
-      datasetStage.showDataset (currentDocument);
-    else
+    System.out.println ("Where to now?");
+    // scroll to next page
+    if (page.leftColumn == 1)
     {
-      // scroll to next page
-      if (page.leftColumn == 1)
+      if (page.hasEnd)
       {
-        if (page.hasEnd)
-        {
-          data.key = AIDCommand.AID_PF11;
-          return;
-        }
-        else
-        {
-          data.key = AIDCommand.AID_PF8;
-          return;
-        }
+        data.key = AIDCommand.AID_PF11;       // go right
+        System.out.println ("go right");
+        return;
       }
       else
       {
-        if (page.hasBeginning)
-        {
-          data.key = AIDCommand.AID_PF10;
-          setMax (data);
-          doesAuto = false;
-          return;
-        }
-        else
-        {
-          data.key = AIDCommand.AID_PF7;
-          return;
-        }
+        data.key = AIDCommand.AID_PF8;        // go down
+        System.out.println ("go down");
+        return;
+      }
+    }
+    else
+    {
+      if (page.hasBeginning)
+      {
+        data.key = AIDCommand.AID_PF10;       // go left (assumes only one circuit)
+        setMax (data);
+        doesAuto = false;
+        System.out.println ("go left max");
+        datasetStage.setDocument (currentDocument);
+        datasetStage.show ();
+        return;
+      }
+      else
+      {
+        data.key = AIDCommand.AID_PF7;        // go up
+        System.out.println ("go up");
+        return;
       }
     }
   }
 
   private void setMax (PluginData data)
   {
-
+    ScreenField commandField = data.getField ("Command ===>");
+    if (commandField != null)
+      commandField.change ("m");
   }
 
   private void setCurrentDocument (DocumentPage page)

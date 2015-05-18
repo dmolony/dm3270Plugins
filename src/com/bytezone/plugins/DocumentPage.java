@@ -38,6 +38,18 @@ public class DocumentPage
   public static DocumentPage createPage (PluginData data,
       List<ScreenField> modifiableFields)
   {
+    ScreenField editField = findField ("EDIT", data);
+    if (editField == null)
+      return null;
+
+    ScreenField commandField = findField ("Command ===>", data);
+    if (commandField == null || commandField.sequence < editField.sequence)
+      return null;
+
+    ScreenField scrollField = findField ("Scroll ===>", data);
+    if (scrollField == null || scrollField.sequence < commandField.sequence)
+      return null;
+
     return new DocumentPage (data, modifiableFields);
   }
 
@@ -85,6 +97,9 @@ public class DocumentPage
 
   public boolean matches (DocumentPage otherPage)
   {
+    if (otherPage == null)
+      return false;
+
     return leftColumn == otherPage.leftColumn && rightColumn == otherPage.rightColumn
         && firstLine >= 0 && firstLine == otherPage.firstLine;
   }
@@ -120,16 +135,14 @@ public class DocumentPage
 
   private void getColumns (PluginData data)
   {
-    int columnsPosition = findField ("Columns", data);        // may not exist
-    if (columnsPosition < 0)
+    ScreenField columnsField = findField ("Columns", data);        // may not exist
+
+    if (columnsField == null || columnsField.getLength () != 7
+        || columnsField.isModifiable)
       return;
 
-    ScreenField columnField = data.getField (columnsPosition);
-    if (columnField.getLength () != 7 || columnField.isModifiable)
-      return;
-
-    String col1 = data.trimField (columnsPosition + 1);
-    String col2 = data.trimField (columnsPosition + 2);
+    String col1 = data.trimField (columnsField.sequence + 1);
+    String col2 = data.trimField (columnsField.sequence + 2);
 
     try
     {
@@ -138,17 +151,18 @@ public class DocumentPage
     }
     catch (NumberFormatException e)
     {
+      System.out.println ("Bad column number format");
       leftColumn = 0;
       rightColumn = 0;
     }
   }
 
-  private int findField (String text, PluginData data)
+  private static ScreenField findField (String text, PluginData data)
   {
-    for (ScreenField sf : data.screenFields)
-      if (text.equals (sf.getFieldValue ()))
-        return sf.sequence;
-    return -1;
+    for (ScreenField screenField : data.screenFields)
+      if (text.equals (screenField.getFieldValue ()))
+        return screenField;
+    return null;
   }
 
   @Override
