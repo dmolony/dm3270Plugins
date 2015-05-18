@@ -199,16 +199,21 @@ public class ShowDataset extends DefaultPlugin
 
   private void prepareVisitorGrid (int rows, int columns)
   {
-    // need to divide these by the page size
+    // divide these by the page size
+    int pageRows = (rows - 1) / 20 + 1;
+    int pageColumns = (columns - 1) / 72 + 1;
+
     currentDocument.maxColumns = columns;
     currentDocument.totalLines = rows;
-    visitedPages = new boolean[rows][columns];
-    for (int i = 0; i < rows; i++)
+    visitedPages = new boolean[pageRows][pageColumns];
+    for (int i = 0; i < pageRows; i++)
       visitedPages[i][0] = true;
-    visitedPages[rows - 1][columns - 1] = true;
-    unvisitedPages = rows * (columns - 1) - 1;
-    System.out.printf ("Grid %d rows x %d columns%n", rows, columns);
-    System.out.printf ("Visited: %d, unvisited: %d%n", (rows * columns), unvisitedPages);
+    visitedPages[pageRows - 1][pageColumns - 1] = true;
+    int visitedPages = pageRows + (pageColumns > 1 ? 1 : 0);
+    unvisitedPages = pageRows * pageColumns - visitedPages;
+
+    System.out.printf ("Grid %d rows x %d columns%n", pageRows, pageColumns);
+    System.out.printf ("Visited: %d, unvisited: %d%n", visitedPages, unvisitedPages);
   }
 
   private void setCurrentDocument (DocumentPage page)
