@@ -112,7 +112,7 @@ public class FanLogon extends DefaultPlugin
       return;
     }
 
-    int sequence = data.sequence - offset;
+    int sequence = data.sequence - offset;    // allow for auto/request difference
 
     if (sequence >= 1 && sequence <= 2)
     {
