@@ -20,11 +20,13 @@ public class FanLogon extends DefaultPlugin
   private static final String FANDEZHI_HEADING =
       "Mainframe Operating System                              z/OS V1.6";
   private boolean doesAuto = false;
+  private boolean doesRequest = false;
   private boolean fanDeZhi = false;
 
   private final Parameters parameters = new Parameters ();
   private String password;
   private String user;
+  private int offset = 0;
 
   @Override
   public void activate ()
@@ -46,7 +48,10 @@ public class FanLogon extends DefaultPlugin
         doesAuto = false;
       }
       else
-        doesAuto = true;
+      {
+        doesAuto = false;           // for automatic logon
+        doesRequest = true;         // for request logon
+      }
     }
   }
 
@@ -54,6 +59,31 @@ public class FanLogon extends DefaultPlugin
   public boolean doesAuto ()
   {
     return doesAuto;
+  }
+
+  @Override
+  public boolean doesRequest ()
+  {
+    return doesRequest;
+  }
+
+  @Override
+  public void processRequest (PluginData data)
+  {
+    if (data.size () > 6 && FANDEZHI_HEADING.equals (data.trimField (0))
+        && "TSO".equals (data.trimField (5))
+        && "- Logon to TSO/ISPF".equals (data.trimField (6)))
+    {
+      ScreenField command = data.getField (17);
+      if (command != null && command.isModifiableLength (58))
+      {
+        command.change ("TSO " + user);
+        data.setKey (AIDCommand.AID_ENTER_KEY);
+        fanDeZhi = true;
+        doesAuto = true;
+        offset = data.sequence;
+      }
+    }
   }
 
   @Override
@@ -82,12 +112,15 @@ public class FanLogon extends DefaultPlugin
       return;
     }
 
-    if (data.sequence >= 1 && data.sequence <= 2)
+    int sequence = data.sequence - offset;
+
+    if (sequence >= 1 && sequence <= 2)
     {
       // do nothing
     }
-    else if (data.sequence == 3)        // password screen
+    else if (sequence == 3)        // password screen
     {
+      System.out.println ("at password screen");
       if (TSO_HEADING.equals (data.trimField (0))
           && "Enter LOGON parameters below:".equals (data.trimField (3)))
       {
@@ -109,10 +142,10 @@ public class FanLogon extends DefaultPlugin
         doesAuto = false;
       }
     }
-    else if (data.sequence >= 4 && data.sequence <= 20)
+    else if (sequence >= 4 && sequence <= 20)
     {
       // check for password screen error
-      if (data.sequence == 4 && TSO_HEADING.equals (data.trimField (0)))
+      if (sequence == 4 && TSO_HEADING.equals (data.trimField (0)))
       {
         showAlert (AlertType.ERROR, "Password entry failed");
         doesAuto = false;
