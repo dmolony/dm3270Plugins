@@ -120,7 +120,7 @@ public class FanLogon extends DefaultPlugin
     }
     else if (sequence == 3)        // password screen
     {
-      System.out.println ("at password screen");
+      //      System.out.println ("at password screen");
       if (TSO_HEADING.equals (data.trimField (0))
           && "Enter LOGON parameters below:".equals (data.trimField (3)))
       {
