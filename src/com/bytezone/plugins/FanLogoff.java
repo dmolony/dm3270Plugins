@@ -41,7 +41,7 @@ public class FanLogoff extends DefaultPlugin
         && (command.isModifiableLength (1911) || command.isModifiableLength (1831)))
     {
       command.change ("logoff");
-      data.setKey (AIDCommand.AID_ENTER_KEY);
+      data.setKey (AIDCommand.AID_ENTER);
       doesAuto = false;
     }
   }
@@ -84,6 +84,6 @@ public class FanLogoff extends DefaultPlugin
     doesRequest = false;
 
     command.change ("=x");
-    data.setKey (AIDCommand.AID_ENTER_KEY);
+    data.setKey (AIDCommand.AID_ENTER);
   }
 }

@@ -78,7 +78,7 @@ public class FanLogon extends DefaultPlugin
       if (command != null && command.isModifiableLength (58))
       {
         command.change ("TSO " + user);
-        data.setKey (AIDCommand.AID_ENTER_KEY);
+        data.setKey (AIDCommand.AID_ENTER);
         fanDeZhi = true;
         doesAuto = true;
         offset = data.sequence;
@@ -99,7 +99,7 @@ public class FanLogon extends DefaultPlugin
         if (command != null && command.isModifiableLength (58))
         {
           command.change ("TSO " + user);
-          data.setKey (AIDCommand.AID_ENTER_KEY);
+          data.setKey (AIDCommand.AID_ENTER);
           fanDeZhi = true;
         }
       }
@@ -128,7 +128,7 @@ public class FanLogon extends DefaultPlugin
         if (passwordField.isModifiableLength (8))
         {
           passwordField.change (password);
-          data.setKey (AIDCommand.AID_ENTER_KEY);
+          data.setKey (AIDCommand.AID_ENTER);
         }
         else
         {
@@ -158,7 +158,7 @@ public class FanLogon extends DefaultPlugin
         data.suppressDisplay = true;
       }
       else
-        data.setKey (AIDCommand.AID_ENTER_KEY);
+        data.setKey (AIDCommand.AID_ENTER);
     }
     else
       doesAuto = false;
