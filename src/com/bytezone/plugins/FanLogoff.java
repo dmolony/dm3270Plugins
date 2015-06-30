@@ -3,7 +3,7 @@ package com.bytezone.plugins;
 import com.bytezone.dm3270.commands.AIDCommand;
 import com.bytezone.dm3270.plugins.DefaultPlugin;
 import com.bytezone.dm3270.plugins.PluginData;
-import com.bytezone.dm3270.plugins.ScreenField;
+import com.bytezone.dm3270.plugins.PluginField;
 import com.bytezone.dm3270.plugins.ScreenLocation;
 
 public class FanLogoff extends DefaultPlugin
@@ -31,7 +31,7 @@ public class FanLogoff extends DefaultPlugin
   @Override
   public void processAuto (PluginData data)
   {
-    ScreenField command = null;
+    PluginField command = null;
     if ("READY".equals (data.trimField (0)))
       command = data.getField (1);
     else if ("READY".equals (data.trimField (2)))
@@ -54,7 +54,7 @@ public class FanLogoff extends DefaultPlugin
     int maxFields = Math.min (20, data.screenFields.size ());
     for (int i = 0; i < maxFields; i++)
     {
-      ScreenField field = data.getField (i);
+      PluginField field = data.getField (i);
       if (matches (i, field, "Command ===>", commandLocation, 48)
           || matches (i, field, "Option ===>", optionLocation, 66))
       {
@@ -64,13 +64,13 @@ public class FanLogoff extends DefaultPlugin
     }
   }
 
-  private boolean matches (int index, ScreenField field, String text,
+  private boolean matches (int index, PluginField field, String text,
       ScreenLocation expectedLocation, int nextFieldLength)
   {
     if (field.isProtected && field.location.matches (expectedLocation)
         && field.getFieldValue ().equals (text))
     {
-      ScreenField nextField = data.getField (index + 1);
+      PluginField nextField = data.getField (index + 1);
       if (nextField != null && nextField.isModifiable
           && nextField.getLength () == nextFieldLength)
         return true;
@@ -78,7 +78,7 @@ public class FanLogoff extends DefaultPlugin
     return false;
   }
 
-  private void setLogoff (ScreenField command)
+  private void setLogoff (PluginField command)
   {
     doesAuto = true;
     doesRequest = false;

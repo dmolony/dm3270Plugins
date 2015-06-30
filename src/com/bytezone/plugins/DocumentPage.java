@@ -6,14 +6,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.bytezone.dm3270.plugins.PluginData;
-import com.bytezone.dm3270.plugins.ScreenField;
+import com.bytezone.dm3270.plugins.PluginField;
 
 public class DocumentPage implements Comparable<DocumentPage>
 {
-  private static final String START_DATA = "***************************** Top of Dat"
-      + "a ******************************";
-  private static final String END_DATA = "**************************** Bottom of D"
-      + "ata ****************************";
+  private static final String START_DATA =
+      "***************************** Top of Dat" + "a ******************************";
+  private static final String END_DATA =
+      "**************************** Bottom of D" + "ata ****************************";
   private static String pattern = "([A-Z0-9]{1,8}(\\.[A-Z0-9]{1,8})*)" // dataset name
       + "(\\([A-Z0-9]{1,8}\\))?"                        // member name
       + "( - [0-9]{2}\\.[0-9]{2})?";                    // editing data
@@ -36,35 +36,35 @@ public class DocumentPage implements Comparable<DocumentPage>
   List<String> lines = new ArrayList<> ();
 
   public static DocumentPage createPage (PluginData data,
-      List<ScreenField> modifiableFields)
+      List<PluginField> modifiableFields)
   {
-    ScreenField editField = findField ("EDIT", data);
+    PluginField editField = findField ("EDIT", data);
     if (editField == null)
       return null;
 
-    ScreenField commandField = findField ("Command ===>", data);
+    PluginField commandField = findField ("Command ===>", data);
     if (commandField == null || commandField.sequence < editField.sequence)
       return null;
 
-    ScreenField scrollField = findField ("Scroll ===>", data);
+    PluginField scrollField = findField ("Scroll ===>", data);
     if (scrollField == null || scrollField.sequence < commandField.sequence)
       return null;
 
     return new DocumentPage (data, modifiableFields);
   }
 
-  private DocumentPage (PluginData data, List<ScreenField> modifiableFields)
+  private DocumentPage (PluginData data, List<PluginField> modifiableFields)
   {
     getDatasetName (data);
     getColumns (data);
 
-    for (ScreenField sf : modifiableFields)
+    for (PluginField sf : modifiableFields)
       switch (sf.location.column)
       {
         case 1:
           if (sf.getLength () == 6 && sf.getFieldValue ().equals ("******"))
           {
-            ScreenField nextField = data.getField (sf.sequence + 1);
+            PluginField nextField = data.getField (sf.sequence + 1);
             if (nextField != null && nextField.isProtected
                 && nextField.getLength () >= 72)
             {
@@ -137,7 +137,7 @@ public class DocumentPage implements Comparable<DocumentPage>
 
   private void getColumns (PluginData data)
   {
-    ScreenField columnsField = findField ("Columns", data);        // may not exist
+    PluginField columnsField = findField ("Columns", data);        // may not exist
 
     if (columnsField == null || columnsField.getLength () != 7
         || columnsField.isModifiable)
@@ -159,9 +159,9 @@ public class DocumentPage implements Comparable<DocumentPage>
     }
   }
 
-  private static ScreenField findField (String text, PluginData data)
+  private static PluginField findField (String text, PluginData data)
   {
-    for (ScreenField screenField : data.screenFields)
+    for (PluginField screenField : data.screenFields)
       if (text.equals (screenField.getFieldValue ().trim ()))
         return screenField;
     return null;

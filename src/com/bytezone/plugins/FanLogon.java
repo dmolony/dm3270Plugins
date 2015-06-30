@@ -2,16 +2,16 @@ package com.bytezone.plugins;
 
 import java.util.Optional;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
-
 import com.bytezone.dm3270.application.Parameters;
 import com.bytezone.dm3270.application.Parameters.SiteParameters;
 import com.bytezone.dm3270.commands.AIDCommand;
 import com.bytezone.dm3270.plugins.DefaultPlugin;
 import com.bytezone.dm3270.plugins.PluginData;
-import com.bytezone.dm3270.plugins.ScreenField;
+import com.bytezone.dm3270.plugins.PluginField;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 public class FanLogon extends DefaultPlugin
 {
@@ -74,7 +74,7 @@ public class FanLogon extends DefaultPlugin
         && "TSO".equals (data.trimField (5))
         && "- Logon to TSO/ISPF".equals (data.trimField (6)))
     {
-      ScreenField command = data.getField (17);
+      PluginField command = data.getField (17);
       if (command != null && command.isModifiableLength (58))
       {
         command.change ("TSO " + user);
@@ -95,7 +95,7 @@ public class FanLogon extends DefaultPlugin
           && "TSO".equals (data.trimField (5))
           && "- Logon to TSO/ISPF".equals (data.trimField (6)))
       {
-        ScreenField command = data.getField (17);
+        PluginField command = data.getField (17);
         if (command != null && command.isModifiableLength (58))
         {
           command.change ("TSO " + user);
@@ -118,13 +118,13 @@ public class FanLogon extends DefaultPlugin
     {
       // do nothing
     }
-    else if (sequence == 3)        // password screen
+    else if (sequence == 3)         // password screen
     {
-      //      System.out.println ("at password screen");
+      // System.out.println ("at password screen");
       if (TSO_HEADING.equals (data.trimField (0))
           && "Enter LOGON parameters below:".equals (data.trimField (3)))
       {
-        ScreenField passwordField = data.getField (12);
+        PluginField passwordField = data.getField (12);
         if (passwordField.isModifiableLength (8))
         {
           passwordField.change (password);
@@ -138,7 +138,7 @@ public class FanLogon extends DefaultPlugin
       }
       else
       {
-        //        showAlert (AlertType.ERROR, "Wrong screen (heading doesn't match)");
+        // showAlert (AlertType.ERROR, "Wrong screen (heading doesn't match)");
         doesAuto = false;
       }
     }

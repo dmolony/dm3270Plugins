@@ -2,6 +2,10 @@ package com.bytezone.plugins;
 
 import java.util.prefs.Preferences;
 
+import com.bytezone.dm3270.application.WindowSaver;
+import com.bytezone.dm3270.plugins.PluginData;
+import com.bytezone.dm3270.plugins.PluginField;
+
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,15 +20,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
-import com.bytezone.dm3270.application.WindowSaver;
-import com.bytezone.dm3270.plugins.PluginData;
-import com.bytezone.dm3270.plugins.ScreenField;
-
 public class DebugStage extends Stage
 {
   private final ScreenFieldTable table;
-  private final ObservableList<ScreenField> dataRecords = FXCollections
-      .observableArrayList ();
+  private final ObservableList<PluginField> dataRecords =
+      FXCollections.observableArrayList ();
 
   private final Preferences prefs = Preferences.userNodeForPackage (this.getClass ());
   private final WindowSaver windowSaver = new WindowSaver (prefs, this, "PluginDebug");
@@ -75,17 +75,17 @@ public class DebugStage extends Stage
     windowSaver.restoreWindow ();
   }
 
-  private void change (ScreenFieldTable table, FilteredList<ScreenField> filteredData)
+  private void change (ScreenFieldTable table, FilteredList<PluginField> filteredData)
   {
     // get the previously selected line
-    ScreenField selectedRecord = table.getSelectionModel ().getSelectedItem ();
+    PluginField selectedRecord = table.getSelectionModel ().getSelectedItem ();
 
     // update the booleans
     hideEmpty = hideEmptyCB.isSelected ();
 
     // change the filter predicate
-    filteredData.setPredicate (screenField -> //
-        (screenField.isModifiable || !screenField.getFieldValue ().isEmpty () || !hideEmpty));
+    filteredData.setPredicate (screenField ->   //
+    (screenField.isModifiable || !screenField.getFieldValue ().isEmpty () || !hideEmpty));
 
     // restore the previously selected item (if it is still visible)
     if (selectedRecord != null)
@@ -104,13 +104,13 @@ public class DebugStage extends Stage
   public void showData (PluginData data)
   {
     dataRecords.setAll (data.screenFields);
-    FilteredList<ScreenField> filteredData = new FilteredList<> (dataRecords, p -> true);
+    FilteredList<PluginField> filteredData = new FilteredList<> (dataRecords, p -> true);
 
     // change the filter predicate
-    filteredData.setPredicate (screenField -> //
-        (screenField.isModifiable || !screenField.getFieldValue ().isEmpty () || !hideEmpty));
+    filteredData.setPredicate (screenField ->   //
+    (screenField.isModifiable || !screenField.getFieldValue ().isEmpty () || !hideEmpty));
 
-    SortedList<ScreenField> sortedData = new SortedList<> (filteredData);
+    SortedList<PluginField> sortedData = new SortedList<> (filteredData);
     sortedData.comparatorProperty ().bind (table.comparatorProperty ());
 
     ChangeListener<? super Boolean> changeListener =

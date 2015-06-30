@@ -6,7 +6,7 @@ import java.util.TreeMap;
 import com.bytezone.dm3270.commands.AIDCommand;
 import com.bytezone.dm3270.plugins.DefaultPlugin;
 import com.bytezone.dm3270.plugins.PluginData;
-import com.bytezone.dm3270.plugins.ScreenField;
+import com.bytezone.dm3270.plugins.PluginField;
 
 public class ShowDataset extends DefaultPlugin
 {
@@ -133,7 +133,7 @@ public class ShowDataset extends DefaultPlugin
         return;
       }
 
-      if (page.leftColumn != 1)       // this could loop
+      if (page.leftColumn != 1)        // this could loop
       {
         data.key = AIDCommand.AID_PF10;
         setMax (data);
@@ -189,10 +189,10 @@ public class ShowDataset extends DefaultPlugin
 
   private void setMax (PluginData data)
   {
-    ScreenField commandField = data.getField ("Command ===>");
+    PluginField commandField = data.getField ("Command ===>");
     if (commandField != null)
     {
-      ScreenField inputField = data.getField (commandField.sequence + 1);
+      PluginField inputField = data.getField (commandField.sequence + 1);
       inputField.change ("m");
     }
   }
