@@ -62,6 +62,24 @@ public class FanLogoff extends DefaultPlugin
         return;
       }
     }
+
+    if (data.screenFields.size () < 19)
+      return;
+
+    PluginField field = data.getField (10);
+    if (field.getLength () == 18 && "ISPF Command Shell".equals (field.getFieldValue ()))
+    {
+      field = data.getField (17);
+      if (field.getLength () == 4 && "===>".equals (field.getFieldValue ()))
+      {
+        field = data.getField (18);
+        if (field.getLength () == 234)
+        {
+          setLogoff (field);
+          return;
+        }
+      }
+    }
   }
 
   private boolean matches (int index, PluginField field, String text,
