@@ -1,5 +1,7 @@
 # dm3270 Plugins
 Plugins for the [dm3270](https://github.com/dmolony/dm3270/) terminal emulator.
+### Documentation
+* [Project layout](resources/structure.md)
 #### Show fields
 Display a list of all the fields on the current screen. Useful when building other plugins.  
 ![Field list](resources/fields.png?raw=true "Field list")
