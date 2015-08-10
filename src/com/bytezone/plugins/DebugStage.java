@@ -46,12 +46,9 @@ public class DebugStage extends Stage
     HBox hbox = new HBox ();
     hideButton.setPrefWidth (150);
     hbox.setAlignment (Pos.CENTER_RIGHT);
-    hbox.setPadding (new Insets (0, 10, 10, 10));         // trbl
+    hbox.setPadding (new Insets (0, 10, 10, 10));// trbl
 
-    hideButton.setOnAction (e -> {
-      closing ();
-      hide ();
-    });
+    hideButton.setOnAction (e -> closing ());
     hbox.getChildren ().add (hideButton);
 
     root.setCenter (innerPane);
@@ -62,13 +59,13 @@ public class DebugStage extends Stage
 
     final HBox checkBoxes = new HBox ();
     checkBoxes.setSpacing (15);
-    checkBoxes.setPadding (new Insets (10, 10, 0, 10));    // trbl
+    checkBoxes.setPadding (new Insets (10, 10, 0, 10));// trbl
     checkBoxes.getChildren ().addAll (hideEmptyCB);
 
     innerPane.setCenter (table);
     innerPane.setBottom (checkBoxes);
 
-    Scene scene = new Scene (root, 1000, 500);      // width, height
+    Scene scene = new Scene (root, 1000, 500);// width, height
     setScene (scene);
 
     setOnCloseRequest (e -> closing ());
@@ -84,7 +81,7 @@ public class DebugStage extends Stage
     hideEmpty = hideEmptyCB.isSelected ();
 
     // change the filter predicate
-    filteredData.setPredicate (screenField ->   //
+    filteredData.setPredicate (screenField -> //
     (screenField.isModifiable || !screenField.getFieldValue ().isEmpty () || !hideEmpty));
 
     // restore the previously selected item (if it is still visible)
@@ -99,6 +96,7 @@ public class DebugStage extends Stage
   {
     prefs.putBoolean ("PluginHideEmpty", hideEmpty);
     windowSaver.saveWindow ();
+    hide ();
   }
 
   public void showData (PluginData data)
@@ -107,7 +105,7 @@ public class DebugStage extends Stage
     FilteredList<PluginField> filteredData = new FilteredList<> (dataRecords, p -> true);
 
     // change the filter predicate
-    filteredData.setPredicate (screenField ->   //
+    filteredData.setPredicate (screenField -> //
     (screenField.isModifiable || !screenField.getFieldValue ().isEmpty () || !hideEmpty));
 
     SortedList<PluginField> sortedData = new SortedList<> (filteredData);

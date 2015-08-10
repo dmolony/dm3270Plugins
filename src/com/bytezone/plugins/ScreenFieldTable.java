@@ -62,49 +62,50 @@ public class ScreenFieldTable extends TableView<PluginField>
 
   private void createJustifications ()
   {
-    rightJustified = new Callback<TableColumn<PluginField, Integer>, //
-    TableCell<PluginField, Integer>> ()
-    {
-      @Override
-      public TableCell<PluginField, Integer> call (TableColumn<PluginField, Integer> p)
-      {
-        TableCell<PluginField, Integer> cell = new TableCell<PluginField, Integer> ()
+    rightJustified =
+        new Callback<TableColumn<PluginField, Integer>, TableCell<PluginField, Integer>> ()
         {
           @Override
-          public void updateItem (Integer item, boolean empty)
+          public TableCell<PluginField, Integer>
+              call (TableColumn<PluginField, Integer> p)
           {
-            super.updateItem (item, empty);
-            setText (empty ? null : getItem () == null ? "0" : //
-                String.format ("%,d", getItem ()));
-            setGraphic (null);
+            TableCell<PluginField, Integer> cell = new TableCell<PluginField, Integer> ()
+            {
+              @Override
+              public void updateItem (Integer item, boolean empty)
+              {
+                super.updateItem (item, empty);
+                setText (empty ? null : getItem () == null ? "0" : //
+                    String.format ("%,d", getItem ()));
+                setGraphic (null);
+              }
+            };
+
+            cell.setStyle ("-fx-alignment: center-right;");
+            return cell;
           }
         };
 
-        cell.setStyle ("-fx-alignment: center-right;");
-        return cell;
-      }
-    };
-
-    centreJustified = new Callback<TableColumn<PluginField, String>, //
-    TableCell<PluginField, String>> ()
-    {
-      @Override
-      public TableCell<PluginField, String> call (TableColumn<PluginField, String> p)
-      {
-        TableCell<PluginField, String> cell = new TableCell<PluginField, String> ()
+    centreJustified =
+        new Callback<TableColumn<PluginField, String>, TableCell<PluginField, String>> ()
         {
           @Override
-          public void updateItem (String item, boolean empty)
+          public TableCell<PluginField, String> call (TableColumn<PluginField, String> p)
           {
-            super.updateItem (item, empty);
-            setText (empty ? null : getItem () == null ? "" : getItem ().toString ());
-            setGraphic (null);
+            TableCell<PluginField, String> cell = new TableCell<PluginField, String> ()
+            {
+              @Override
+              public void updateItem (String item, boolean empty)
+              {
+                super.updateItem (item, empty);
+                setText (empty ? null : getItem () == null ? "" : getItem ().toString ());
+                setGraphic (null);
+              }
+            };
+
+            cell.setStyle ("-fx-alignment: center;");
+            return cell;
           }
         };
-
-        cell.setStyle ("-fx-alignment: center;");
-        return cell;
-      }
-    };
   }
 }
