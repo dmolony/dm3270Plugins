@@ -11,11 +11,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -31,7 +30,7 @@ public class DebugStage extends Stage
 
   private final CheckBox hideEmptyCB = new CheckBox ("Hide empty & protected");
   private boolean hideEmpty;
-  private final Button hideButton = new Button ("Hide Window");
+  private final Button btnHide = new Button ("Hide Window");
 
   public DebugStage ()
   {
@@ -41,29 +40,28 @@ public class DebugStage extends Stage
     setOnCloseRequest (e -> hide ());
 
     BorderPane root = new BorderPane ();
-    BorderPane innerPane = new BorderPane ();
 
-    HBox hbox = new HBox ();
-    hideButton.setPrefWidth (150);
-    hbox.setAlignment (Pos.CENTER_RIGHT);
-    hbox.setPadding (new Insets (0, 10, 10, 10));// trbl
-
-    hideButton.setOnAction (e -> closing ());
-    hbox.getChildren ().add (hideButton);
-
-    root.setCenter (innerPane);
-    root.setBottom (hbox);
+    btnHide.setPrefWidth (150);
+    btnHide.setOnAction (e -> closing ());
 
     hideEmpty = prefs.getBoolean ("PluginHideEmpty", false);
     hideEmptyCB.setSelected (hideEmpty);
 
     final HBox checkBoxes = new HBox ();
     checkBoxes.setSpacing (15);
-    checkBoxes.setPadding (new Insets (10, 10, 0, 10));// trbl
     checkBoxes.getChildren ().addAll (hideEmptyCB);
 
-    innerPane.setCenter (table);
-    innerPane.setBottom (checkBoxes);
+    AnchorPane anchorPane = new AnchorPane ();
+    AnchorPane.setLeftAnchor (checkBoxes, 10.0);
+    AnchorPane.setBottomAnchor (checkBoxes, 10.0);
+    AnchorPane.setTopAnchor (checkBoxes, 10.0);
+    AnchorPane.setTopAnchor (btnHide, 10.0);
+    AnchorPane.setBottomAnchor (btnHide, 10.0);
+    AnchorPane.setRightAnchor (btnHide, 10.0);
+    anchorPane.getChildren ().addAll (checkBoxes, btnHide);
+
+    root.setCenter (table);
+    root.setBottom (anchorPane);
 
     Scene scene = new Scene (root, 1000, 500);// width, height
     setScene (scene);
@@ -121,6 +119,6 @@ public class DebugStage extends Stage
       show ();
 
     requestFocus ();
-    hideButton.requestFocus ();
+    btnHide.requestFocus ();
   }
 }
