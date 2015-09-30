@@ -42,8 +42,8 @@ public class FanLogoff extends DefaultPlugin
     {
       command.change ("logoff");
       data.setKey (AIDCommand.AID_ENTER);
-      doesAuto = false;
     }
+    doesAuto = false;
   }
 
   @Override
@@ -56,6 +56,7 @@ public class FanLogoff extends DefaultPlugin
     {
       PluginField field = data.getField (i);
       if (matches (i, field, "Command ===>", commandLocation, 48)
+          || matches (i, field, "Command ===>", optionLocation, 65)
           || matches (i, field, "Option ===>", optionLocation, 66))
       {
         setLogoff (data.getField (i + 1));
