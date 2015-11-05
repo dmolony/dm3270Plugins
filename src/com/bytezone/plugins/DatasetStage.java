@@ -2,6 +2,9 @@ package com.bytezone.plugins;
 
 import java.util.prefs.Preferences;
 
+import com.bytezone.dm3270.utilities.WindowSaver;
+import com.bytezone.plugins.Document.Line;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,9 +17,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
-import com.bytezone.dm3270.application.WindowSaver;
-import com.bytezone.plugins.Document.Line;
 
 public class DatasetStage extends Stage
 {

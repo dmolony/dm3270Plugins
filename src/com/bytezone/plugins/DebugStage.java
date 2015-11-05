@@ -2,9 +2,9 @@ package com.bytezone.plugins;
 
 import java.util.prefs.Preferences;
 
-import com.bytezone.dm3270.application.WindowSaver;
 import com.bytezone.dm3270.plugins.PluginData;
 import com.bytezone.dm3270.plugins.PluginField;
+import com.bytezone.dm3270.utilities.WindowSaver;
 
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;

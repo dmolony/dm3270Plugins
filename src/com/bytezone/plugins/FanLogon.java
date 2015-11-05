@@ -31,8 +31,8 @@ public class FanLogon extends DefaultPlugin
   @Override
   public void activate ()
   {
-    SiteParameters sp = parameters.getSiteParameters ("FanDeZhi");
-    if (sp == null)
+    Optional<SiteParameters> sp = parameters.getSiteParameters ("FanDeZhi");
+    if (!sp.isPresent ())
     {
       showAlert (AlertType.ERROR,
                  String.format ("Parameters for %s not found", "FanDeZhi"));
@@ -40,8 +40,9 @@ public class FanLogon extends DefaultPlugin
     }
     else
     {
-      user = sp.getParameter ("user");
-      password = sp.getParameter ("password");
+      SiteParameters siteParameters = sp.get ();
+      user = siteParameters.getParameter ("user");
+      password = siteParameters.getParameter ("password");
       if (user == null || password == null)
       {
         showAlert (AlertType.ERROR, "Parameters not found");
