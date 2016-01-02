@@ -11,8 +11,9 @@ public class FanLogoff extends DefaultPlugin
   private boolean doesAuto = false;
   private boolean doesRequest = true;
 
-  private final ScreenLocation commandLocation = new ScreenLocation (3, 1);
-  private final ScreenLocation optionLocation = new ScreenLocation (3, 1);
+  private final ScreenLocation commandLocation1 = new ScreenLocation (1, 1);
+  private final ScreenLocation commandLocation2 = new ScreenLocation (2, 1);
+  private final ScreenLocation optionLocation3 = new ScreenLocation (3, 1);
 
   private PluginData data;
 
@@ -55,9 +56,10 @@ public class FanLogoff extends DefaultPlugin
     for (int i = 0; i < maxFields; i++)
     {
       PluginField field = data.getField (i);
-      if (matches (i, field, "Command ===>", commandLocation, 48)
-          || matches (i, field, "Command ===>", optionLocation, 65)
-          || matches (i, field, "Option ===>", optionLocation, 66))
+      if (matches (i, field, "Command ===>", commandLocation1, 48)
+          || matches (i, field, "Command ===>", commandLocation2, 48)
+          || matches (i, field, "Command ===>", commandLocation1, 65)
+          || matches (i, field, "Option ===>", optionLocation3, 66))
       {
         setLogoff (data.getField (i + 1));
         return;
