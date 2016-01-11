@@ -11,10 +11,15 @@ public class FanLogoff extends DefaultPlugin
   private boolean doesAuto = false;
   private boolean doesRequest = true;
 
-  private final ScreenLocation commandLocationRow1 = new ScreenLocation (1, 1);
-  private final ScreenLocation commandLocationRow2 = new ScreenLocation (2, 1);
-  private final ScreenLocation commandLocationRow3 = new ScreenLocation (3, 1);
-  private final ScreenLocation optionLocationRow3 = new ScreenLocation (3, 1);
+  private final ScreenLocation locationRow1 = new ScreenLocation (1, 1);
+  private final ScreenLocation locationRow2 = new ScreenLocation (2, 1);
+  private final ScreenLocation locationRow3 = new ScreenLocation (3, 1);
+  private static final String COMMAND_PROMPT = "Command ===>";
+  private static final String COMMAND_INPUT_PROMPT = "COMMAND INPUT ===>";
+  private static final String ACTION_PROMPT = "Action ===>";
+  private static final String OPTION_PROMPT = "Option ===>";
+  //  private final ScreenLocation optionLocationRow3 = new ScreenLocation (3, 1);
+  //  private final ScreenLocation actionLocationRow3 = new ScreenLocation (3, 1);
 
   private PluginData data;
 
@@ -58,13 +63,12 @@ public class FanLogoff extends DefaultPlugin
     {
       PluginField field = data.getField (i);
 
-      if (matches (i, field, "Command ===>", commandLocationRow1, 48)
-          || matches (i, field, "Command ===>", commandLocationRow2, 48)
-          || matches (i, field, "Command ===>", commandLocationRow3, 48)
-          || matches (i, field, "Command ===>", commandLocationRow1, 65)
-          || matches (i, field, "Command ===>", commandLocationRow2, 65)
-          || matches (i, field, "Command ===>", commandLocationRow3, 65)
-          || matches (i, field, "Option ===>", optionLocationRow3, 66))
+      if (matches (i, field, COMMAND_PROMPT, locationRow1, 48, 65)
+          || matches (i, field, COMMAND_PROMPT, locationRow2, 48, 65)
+          || matches (i, field, COMMAND_PROMPT, locationRow3, 48, 65)
+          || matches (i, field, COMMAND_INPUT_PROMPT, locationRow3, 42)
+          || matches (i, field, ACTION_PROMPT, locationRow3, 49)
+          || matches (i, field, OPTION_PROMPT, locationRow3, 66))
       {
         setLogoff (data.getField (i + 1));
         return;
@@ -91,15 +95,16 @@ public class FanLogoff extends DefaultPlugin
   }
 
   private boolean matches (int index, PluginField field, String text,
-      ScreenLocation expectedLocation, int nextFieldLength)
+      ScreenLocation expectedLocation, int... nextFieldLength)
   {
     if (field.isProtected && field.location.matches (expectedLocation)
         && field.getFieldValue ().equals (text))
     {
       PluginField nextField = data.getField (index + 1);
-      if (nextField != null && nextField.isModifiable
-          && nextField.getLength () == nextFieldLength)
-        return true;
+      for (int fieldLength : nextFieldLength)
+        if (nextField != null && nextField.isModifiable
+            && nextField.getLength () == fieldLength)
+          return true;
     }
     return false;
   }
